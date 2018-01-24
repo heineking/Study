@@ -1,10 +1,6 @@
 # Study
 
-## Schedule, Spring 2018
-
----
-
-### Functional JavaScript, Michael Fogus
+## Functional JavaScript, Michael Fogus
 
 Table of Contents
 
@@ -28,7 +24,7 @@ Table of Contents
 
 ---
 
-### Microservices in .NET Core: with examples in Nancy, Gammelgaard
+## Microservices in .NET Core: with examples in Nancy, Gammelgaard
 
 1. Getting started with microservices
    * Chapter 1. Microservices at a glance
