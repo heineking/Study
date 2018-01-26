@@ -19,3 +19,20 @@ expect(typeof addOne).toBe("function");
 
 const two = addOne(1);
 expect(two).toBe(2);
+
+/* compose */
+const addTwo = compose(
+  addOne,
+  addOne
+);
+
+expect(typeof addTwo).toBe("function");
+
+expect(addTwo(1)).toBe(3);
+
+const addOneAndNegate = compose(
+  (n) => -1*n,
+  addOne
+);
+
+expect(addOneAndNegate(1)).toBe(-2);
