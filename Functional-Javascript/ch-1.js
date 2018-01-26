@@ -117,5 +117,69 @@ const comparator = pred => (x,y) => (pred(x,y) ? -1 : (pred(y,x) ? 1 : 0));
 // => [ -108, -6, -1, 0, 2, 3, 10, 42 ]
 
 /* -- csv parser -- */
+function lameCSV(str) {
+  return str
+    .split('\n')
+    .reduce((rows, row) =>
+      [...rows,
+        row
+        .split(",")
+        .map(td => td.trim())
+      ],
+      []
+    );
+}
 
+const peopleTable = lameCSV("name,age,hair\nMerble,35,red\nBob,64,blonde");
+// => [["name", "age", "hair"], ["Merble", "35", "ref"], ...]
+function selectFromTable(nth) {
+  return table => table.reduce((acc, row) => acc.concat(row[nth]), []);
+}
+
+const selectNames = selectFromTable(0);
+const selectAges = selectFromTable(1);
+const selectHairColor = selectFromTable(2);
+
+const names = selectNames(peopleTable);
+const ages = selectAges(peopleTable);
+const hairs = selectHairColor(peopleTable);
+
+function existy(x) {
+  return x != null;
+}
+
+existy(null);       // => false
+existy(undefined);  // => false
+existy({}.notHere); // => false
+existy(0);          // => true
+existy(false);      // => true
+
+function truthy(x) {
+  return x !== false && existy(x);
+}
+
+truthy(false);      // => false
+truthy(undefined);  // => false
+truthy(0);          // => true
+truthy('');         // => true
+
+function doWhen(cond, action) {
+  if(truthy(cond)) {
+    return action();
+  } else {
+    return undefined;
+  }
+}
+
+function executeIfHasField(target, name) {
+  return doWhen(existy(target[name]), () => {
+    var result = target[name]();
+    console.log(`the result is ${result}`);
+    return result;
+  });
+}
+
+executeIfHasField([1,2,3], 'reverse');   // => [3,2,1]
+executeIfHasField([1,2,3], 'notHere');   // => undefined
+var pause = "";
 

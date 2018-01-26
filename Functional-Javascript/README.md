@@ -19,3 +19,17 @@ smallest area possible for the system.
 
 **Higher order function** is a function that takes in a function an returns
 another function.
+
+## Chapter 2 First Class Functions and Applicative Programming
+
+**First-Class Function** means that a function can go anywhere that a value can go
+
+JavaScript facilites the following paradigms:
+
+* Imperative
+* Prototypical
+* Metaprogramming
+
+**Imperative** programming is often the practice of high attention to detail of
+algorithm execution and often directly inspecting state.
+
