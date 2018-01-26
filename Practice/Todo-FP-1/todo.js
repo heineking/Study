@@ -57,4 +57,4 @@ const createAndAddTodo = compose(
 const addBtn = document.getElementById('add');
 addBtn.onclick = () => {
   createAndAddTodo('todo');
-}
+  
