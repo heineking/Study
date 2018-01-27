@@ -269,12 +269,15 @@ const projectTables = project(table, ['title']);
 
 // break the table abstraction and pluck the titles
 const titles = pluck(projectTables, 'title');
+//=> ['Don Quixote', 'Hamlet', 'Moby Dick']
 
 // colAs example
 const renameEds = colAs(table, { edition: 'ed' });
+//=> returns rows with 'edition' mapped to 'ed'
 
-// restricti
+// restrict
 const editionsGreaterThanOne = restrict(table, book => book.edition > 1);
+//=> returns all rows with addition greater than 1
 
 // All together...
 const queried = project(
@@ -284,5 +287,6 @@ const queried = project(
   ),
   ['title']
 );
+// => [{ title: 'Hamlet' }, { title: 'Moby Dick' }]
 
 debugger;
