@@ -33,3 +33,27 @@ JavaScript facilites the following paradigms:
 **Imperative** programming is often the practice of high attention to detail of
 algorithm execution and often directly inspecting state.
 
+**Functional** pulling apart and reassembling a program from the same part.
+Functions are the boundaries of the program. We can separate out domain logic from
+generic functionality.
+
+**Prototype-based** JavaScript is similar to Java or C# in that its constructor functions
+are classes, but the method of use is at a lower level. The difference, however, is that 
+JavaScript instances use existing objects as prototypes for the specialized objects. I
+has a special protype-chain and dispatch.
+
+**Metaprogramming** Related to prototype-based. Programming occurs when you write code to do
+somethhing and metaprogramming occurs when you write code that changes the way something
+is interpreted.
+
+**Applicative Programming** Defined by the calling by function B of a function A, supplied
+as an argument to function B. Examples are map, filter, reduce.
+
+"It is better to have 100 functions operate on one data structure than 10 functions on 10
+data structures"
+
+- Alan Perlis
+
+The key to functional programming is the gradual definition and use of discrete functionality
+built from lower-level functions
+
