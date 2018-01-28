@@ -161,7 +161,7 @@ weirdAdd(42, () => 42); //=> 42
   const charsOnly = reject(['a', 'b', 1, 'c', 2], isNumber);
   //=> ['a', 'b', 'c']
 
-  const complement = pred => (...args) => !pred(...args.reverse());
+  const complement = pred => (...args) => !pred(...args);
   const charOnly2 = filter(['a', 'b', 1, 'c', 2], complement(isNumber));
   //=> ['a', 'b', 'c']
 
@@ -289,4 +289,3 @@ const queried = project(
 );
 // => [{ title: 'Hamlet' }, { title: 'Moby Dick' }]
 
-debugger;

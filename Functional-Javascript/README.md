@@ -57,3 +57,32 @@ data structures"
 The key to functional programming is the gradual definition and use of discrete functionality
 built from lower-level functions
 
+## Chapter 3. Variable Scope and Closures
+
+**Binding** refers to the act of assigning a value to a name via var, function args, this
+passing, and property assignment.
+
+**scope**
+
+* The value of the this binding
+* The execution context defined by the value of the this binding
+* The lifetime of a variable
+* The variable value resolution scheme, or the lexical binding
+
+### Dynamic Scope
+
+Under appreciate and over-abused concepts. It is built on the idea of global table of named
+values.
+
+Dynamic binding of the 'this' var can be useful when trying to bind actions to button 
+clicks and lock in the references.
+
+### Closures
+
+A way to pass adhoc state via first-class functions. A closure is a function that "captures"
+values near where it was born. A closure is a function that captures external bindings that
+is not its own.
+
+
+
+
