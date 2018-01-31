@@ -83,6 +83,11 @@ A way to pass adhoc state via first-class functions. A closure is a function tha
 values near where it was born. A closure is a function that captures external bindings that
 is not its own.
 
+## Chapter 4. Higher-Order Functions
 
+**Higher-Order Function**
 
+* First-class
+* Takes a function as an argument
+* Returns a function as a result
 

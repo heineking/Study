@@ -1,0 +1,14 @@
+{
+  "name": "functionjavascript",
+  "version": "1.0.0",
+  "description": "Object oriented programming tends to break problems down into nouns or objects\r where the functional approach tends to break down the problem into verbs or\r behaviors.",
+  "main": "ch-1.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ramda": "^0.25.0"
+  }
+}
