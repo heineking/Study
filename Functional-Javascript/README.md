@@ -37,30 +37,22 @@ algorithm execution and often directly inspecting state.
 Functions are the boundaries of the program. We can separate out domain logic from
 generic functionality.
 
-**Prototype-based** JavaScript is similar to Java or C# in that its constructor functions
-are classes, but the method of use is at a lower level. The difference, however, is that 
-JavaScript instances use existing objects as prototypes for the specialized objects. I
-has a special protype-chain and dispatch.
+**Prototype-based** JavaScript is similar to Java or C# in that its constructorf unctions are classes, but the method of use is at a lower level. The difference, however, is that JavaScript instances use existing objects as prototypes for the specialized objects. I has a special protype-chain and dispatch.
 
-**Metaprogramming** Related to prototype-based. Programming occurs when you write code to do
-somethhing and metaprogramming occurs when you write code that changes the way something
-is interpreted.
+**Metaprogramming** Related to prototype-based. Programming occurs when you write code to do somethhing and metaprogramming occurs when you write code that changes
+the way something is interpreted.
 
-**Applicative Programming** Defined by the calling by function B of a function A, supplied
-as an argument to function B. Examples are map, filter, reduce.
+**Applicative Programming** Defined by the calling by function B of a function A, supplied as an argument to function B. Examples are map, filter, reduce.
 
-"It is better to have 100 functions operate on one data structure than 10 functions on 10
-data structures"
+"It is better to have 100 functions operate on one data structure than 10 functions on 10 data structures"
 
 - Alan Perlis
 
-The key to functional programming is the gradual definition and use of discrete functionality
-built from lower-level functions
+The key to functional programming is the gradual definition and use of discrete functionality built from lower-level functions
 
 ## Chapter 3. Variable Scope and Closures
 
-**Binding** refers to the act of assigning a value to a name via var, function args, this
-passing, and property assignment.
+**Binding** refers to the act of assigning a value to a name via var, function args, this passing, and property assignment.
 
 **scope**
 
@@ -71,17 +63,13 @@ passing, and property assignment.
 
 ### Dynamic Scope
 
-Under appreciate and over-abused concepts. It is built on the idea of global table of named
-values.
+Under appreciate and over-abused concepts. It is built on the idea of global table of named values.
 
-Dynamic binding of the 'this' var can be useful when trying to bind actions to button 
-clicks and lock in the references.
+Dynamic binding of the 'this' var can be useful when trying to bind actions to button clicks and lock in the references.
 
 ### Closures
 
-A way to pass adhoc state via first-class functions. A closure is a function that "captures"
-values near where it was born. A closure is a function that captures external bindings that
-is not its own.
+A way to pass adhoc state via first-class functions. A closure is a function that "captures" values near where it was born. A closure is a function that captures external bindings that is not its own.
 
 ## Chapter 4. Higher-Order Functions
 
@@ -91,3 +79,16 @@ is not its own.
 * Takes a function as an argument
 * Returns a function as a result
 
+## Chapter 5. Function Building Functions
+
+Will go over the how and why of functional composition.
+
+**Composition** snapping together functions like Lego blocks to build rick functionality from parts.
+
+**Mutation** is sometimes necessary but is a low-level operation... one that should be kept out of sight and out of mind.
+
+**Curry**
+
+A curried function is a function that returns a new function each times a newl ogical argument is added. This is a way to "configure" functions with previous.
+
+ 
