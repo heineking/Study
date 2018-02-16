@@ -22,6 +22,14 @@ const dispatch = (...fns) =>
     return undefined;
   };
 
+const validator = (message, fn) => {
+  const v = (...args) => fn(...args);
+  v.message = message;
+  return v;
+};
+
+const div = (n, d) => n / d;
+
 {
 
   const str = dispatch(
@@ -41,7 +49,7 @@ const dispatch = (...fns) =>
     : undefined;
 
   const rev = dispatch(invoker("reverse", Array.prototype.reverse), stringReverse);
-  // const revAbc = rev("abc");
+  const revAbc = rev("abc");
 
   // an example of the composability
   const sillyReverse = dispatch(rev, always(42));
@@ -149,9 +157,81 @@ const dispatch = (...fns) =>
   parseBinaryString("10");
   //=> 2
 
+}
+
+{
+  // partial application
+  const partial1 = (fn, arg1) => (...args) => fn(arg1, ...args);
+
+  const over10Part1 = partial1(div, 10);
+  over10Part1(5);
+  //=> 2
+
+  const partial = (fn, ...args1) => (...args2) => fn(...args1, ...args2);
+
+  // using partials to enforce preconditions...
+  const aMap = obj => !Array.isArray(obj) && obj !== null && typeof obj === 'object';
+
+  const isAMap = validator("arg must be a map", aMap)(42);
+
+  const identity = n => n;
+  const complement = (fn) => (...args) => !fn(...args);
+  const zero = validator("cannot be zero", n => n === 0);
+  const number = validator("arg must be a number", n => typeof n === "number");
+  const isEven = n => n%2 === 0;
+
+  const sqr = n => {
+    if (!number(n)) throw new Error(number.message);
+    if (zero(n)) throw new Error(zero.message);
+
+    return n * n;
+  };
+
+  sqr(10);
+
+  // sqr(0);
+  //=> throws Error
+
+  const condition1 = (...validators) => (fn, arg) => {
+    const errors = validators.reduce((errors, isValid) =>
+      isValid(arg) ? errors : [...errors, isValid.message],
+      []
+    );
+
+    if (errors.length)
+      throw new Error(errors.join(", "));
+
+    return fn(arg);
+  };
+
+  // now we can wrap our sqr into a HOF partial with validation
+  const sqrPre = condition1(
+    validator("arg must not be zero", complement(zero)),
+    validator("arg must be a number", number)
+  );
+
+  let oneHundred = sqrPre(identity, 10);
+
+  // sqrPre(identity, 0);
+  //=> throws error
+
+  // now together with our function
+  const checkedSqr = partial(sqrPre, n => n*n);
+
+  oneHundred = checkedSqr(10);
   
+  // checkedSqr(0);
+  //=> throws error
+
+  // now with the validity separated we can mix in additional checks later...
+  const sillySquare = partial(
+    condition1(validator("should be even", isEven)),
+    checkedSqr
+  );
+
+  oneHundred = sillySquare(100);
+
+  sillySquare(11);
 
   debugger;
 }
-
-debugger;
