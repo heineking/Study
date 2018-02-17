@@ -231,7 +231,35 @@ const div = (n, d) => n / d;
 
   oneHundred = sillySquare(100);
 
-  sillySquare(11);
+  // sillySquare(11);
+  //=> throws error
 
-  debugger;
+  // now what about post conditions...
+
+  const sqrPost = condition1(
+    validator("result should be a number", number),
+    validator("result should be positive", n => n > 0)
+  );
+
+  // sqrPost(identity, 0);
+  //=> throws error
+  
+  sqrPost(identity, 100);
+
+  // now how do we apply the post condition checker??
+  // we want to use the results from the checkedSqr and use
+  // it as the argument for post condition. Perfect opportunity
+  // for compose...
+  const compose = (...fns) => fns.reduce((a, b) => (...args) => a(b(...args)));
+
+  const megaCheckedSqr = compose(partial(sqrPost, identity), checkedSqr);
+  
+  megaCheckedSqr(10);
+
+  // megaCheckedSqr(0);
+  //=> throws error
+
+  // megaCheckedSqr(NaN);
+  //=> throws error
+
 }
