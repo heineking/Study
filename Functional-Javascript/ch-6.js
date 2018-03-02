@@ -1,5 +1,4 @@
 // Recursion
-
 {
   // some simple self recursion examples...
 
@@ -180,5 +179,173 @@
   let y = deepClone(x);
 
   let isEqual = x[0].a === y[0].a;
-
 }
+
+{
+  // a more useful utility function will be a create a function that can visit
+  // all the elements in an array of nested arrays...
+  const visit = (f, g, xs) => Array.isArray(xs)
+    ? g(xs.map(f))
+    : g(xs);
+  
+  const postDepth = (f, xs) => visit(ys => postDepth(f, ys), f, xs);
+
+  // utilities
+  const identity = x => x;
+  const isNumber = n => typeof n === "number";
+
+  // examples -- flat array
+  let ex1 = visit(isNumber, identity, [1, 2, null, 3]);
+
+  // examples -- nested array
+  let ex2 = postDepth(x => {
+    return Array.isArray(x) // <- I don't like having to put in this predicate
+    ? x
+    : x*2;
+  }, [1, 2, [1, 2], 3]);
+
+  // polymorphic post depth... (take from ch 5)
+  const existy = x => typeof x !== "undefined";
+  const doWhen = (predicate, action) => (...args) => predicate(...args)
+    ? action(...args)
+    : undefined;
+
+  const dispatch = (...fns) => (target, ...args) => {
+    for(let fn of fns) {
+      let ret = fn.apply(fn, [target, ...args]);
+      if (existy(ret))
+        return ret;
+    }
+    return undefined;
+  };
+
+  const doubleAll = dispatch(
+    doWhen(x => typeof x === "number", x => x*2),
+    x => x
+  ); 
+
+  let ex3 = postDepth(doubleAll, [1,2,3, null, [1, 2, [1, 2], 3]]);
+
+  const influencedWithStrategy = (strategy, lang, graph) => {
+    let results = [];
+
+    strategy(x => {
+      if (Array.isArray(x) && x[0] === lang)
+        results.push(x[1]);
+      return x;
+    }, graph);
+
+    return results;
+  };
+
+  const influences = [
+    ['Lisp', 'Smalltalk'],
+    ['Lisp', 'Scheme'],
+    ['Smalltalk', 'Self'],
+    ['Scheme', 'Javascript'],
+    ['Scheme', 'Lua'],
+    ['Self', 'Lua'],
+    ['Self', 'Javascript']
+  ];
+
+  let ex4 = influencedWithStrategy(postDepth, "Lisp", influences);
+  //=> ["Smalltalk", "Scheme"]
+}
+
+{
+  // how to stop from blowing the stack... flatten the calls into a bunch of functions
+  const partial1 = (f, arg1) => (arg2) => f(arg1, arg2);
+
+  const trampoline = (f, ...args) => {
+    let result = f(...args);
+    while (typeof result === "function")
+      result = result();
+    return result;
+  }
+
+  const evenOline = n => n === 0
+    ? true
+    : partial1(oddOline, Math.abs(n) - 1);
+
+  const oddOline = n => n === 0
+    ? false
+    : partial1(evenOline, Math.abs(n) - 1);
+
+  const isOneEven = evenOline(1)();
+
+  const isEvenSafe = n => n === 0
+    ? true
+    : trampoline(partial1(oddOline, Math.abs(n) - 1));
+
+  const isOddSafe = n => n === 0
+    ? false
+    : trampoline(partial1(evenOline, Math.abs(n) - 1));
+
+  // here are some examples... these are SLOW but they don't blow the stack so
+  // that is the pro
+  let ex1 = isOddSafe(20000001);
+  let ex2 = isEvenSafe(20000001);
+
+  // putting it all together with a lazy generator
+  const compose = (...fns) => fns.reduce((a,b) => (...args) => a(b(...args)));
+
+  const log = (message, x) => {
+    console.log(message);
+    return x;
+  };
+
+  const generator = (seed, current, step) => ({
+    head: current(seed),
+    tail: () => {
+      // console.log("forced");
+      return generator(step(seed), current, step);
+    }
+  });
+ 
+  const ints = generator(0, x => x, n => n + 1);
+
+  const defer = (f, ...args) => () => f(...args);
+
+  const genHead = ({ head }) => head;
+  const genTail = ({ tail }) => tail();
+
+  const genTake = (n, gen) => {
+    const doTake = (x, g, ret = []) => x === 0
+      ? ret
+      : defer(doTake, x - 1, genTail(g), [...ret, genHead(g)]);
+
+    return trampoline(doTake, n, gen);
+  };
+
+  const tenInts = genTake(10, ints);
+}
+
+{
+  // all the above was great but... recursion is a low level operation and we
+  // should just let our utility libraries to handle it!
+
+  const R = require("ramda");
+
+  const influences = [
+    ['Lisp', 'Smalltalk'],
+    ['Lisp', 'Scheme'],
+    ['Smalltalk', 'Self'],
+    ['Scheme', 'Javascript'],
+    ['Scheme', 'Lua'],
+    ['Self', 'Lua'],
+    ['Self', 'Javascript']
+  ];
+
+  const groupFrom = R.groupBy(R.head);
+
+  const groupedByInfluencees = groupFrom(influences);
+
+  // now bring it all together to get our original output
+  const influenced = (graph, node) => R.map(
+    xs => xs[1],
+    R.prop(node, groupFrom(graph))
+  );
+  
+  const influencedByLisp = influenced(influences, "Lisp");
+}
+
