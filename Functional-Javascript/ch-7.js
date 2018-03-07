@@ -89,5 +89,28 @@ const take = (xs, n) => {
   x[0] = null;
   x[0].a = 42;
   //=> the object was unchanged
-  debugger;
+}
+
+{
+  // we can implement a container using the revealing module pattern... the 
+  // book does it with a function and prototype chain
+  const contain = function(seed) {
+    let state = JSON.parse(JSON.stringify(seed)); //<- poor man's deepClone()
+    
+    function update(f, ...args) {
+      state = f(state, ...args);
+      return state;
+    }
+
+    return {
+      update
+    };
+  }
+
+  const aNumber = contain(42);
+  
+  const ex1 = aNumber.update(n => n + 1);
+  //=> 43
+  const ex2 = aNumber.update((n, x) => n / x, 2);
+  //=> 21.5
 }
