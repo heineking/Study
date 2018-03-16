@@ -81,4 +81,61 @@ const negativeFifth = pipe(fifth, n => -n);
 const ex2 = negativeFifth([1,2,3,4,5]);
 //=> -5
 
+/*
+  Let's use this new utility to create a functional API for our table data example
+  from chapter 2 
+*/
+/*
+  pick :: [String] -> Object -> Object
+  omit :: [string] -> Object -> Object
+  keyValues :: Object -> [[String]]
+
+  rename :: [a] -> b -> c
+  project :: (a -> a) -> [a] -> [a]
+  where :: (a -> Boolean) -> [a] -> [a]
+  
+*/
+
+const curry = f => {
+  let args = [];
+  let arity = f.length;
+  const resolver = (...nextArgs) => {
+    args = [...args, ...nextArgs];
+    return args.length >= arity ? f.apply(f, args) : resolver
+  };
+  return resolver;
+};
+
+const pick = curry((xs, obj) =>
+  Object.keys(obj)
+    .reduce((acc, key) =>
+      xs.includes(key)
+      ? Object.assign(acc, { [key]: obj[key] })
+      : acc,
+      {}
+    )
+  );
+
+const omit = curry((xs, obj) =>
+  Object.keys(obj)
+    .filter(key => !xs.includes(key))
+    .reduce((acc, key) =>
+      Object.assign(acc, { [key]: obj[key]}),
+      {}
+    )
+  );
+
+const rename = curry((renames, obj) =>
+  Object.keys(obj)
+    .reduce((acc, key) =>
+      renames[key]
+      ? Object.assign(acc, { [renames[key]]: obj[key] })
+      : acc,
+      omit(Object.keys(renames), obj)
+    )
+  );
+
+const pickEx1 = pick(['foo'], { foo: 'bar', bah: 'boo' });
+const renameEx1 = rename({ foo: 'FOO' }, { foo: 'bar', boo: 'bah' });
+
 debugger;
