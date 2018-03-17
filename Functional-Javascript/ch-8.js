@@ -85,27 +85,22 @@ const ex2 = negativeFifth([1,2,3,4,5]);
   Let's use this new utility to create a functional API for our table data example
   from chapter 2 
 */
-/*
-  pick :: [String] -> Object -> Object
-  omit :: [string] -> Object -> Object
-  keyValues :: Object -> [[String]]
 
-  rename :: [a] -> b -> c
-  project :: (a -> a) -> [a] -> [a]
-  where :: (a -> Boolean) -> [a] -> [a]
-  
-*/
+function curryN(length, received, fn) {
+  return (...args) => {
+    const combined = [...received, ...args];
+    const left = length - combined.length;
+    return left <= 0
+      ? fn.apply(this, combined)
+      : curryN(length, combined, fn);
+  }
+}
 
-const curry = f => {
-  let args = [];
-  let arity = f.length;
-  const resolver = (...nextArgs) => {
-    args = [...args, ...nextArgs];
-    return args.length >= arity ? f.apply(f, args) : resolver
-  };
-  return resolver;
-};
+function curry(fn) {
+ return curryN(fn.length, [], fn);
+}
 
+//:: [string] -> object -> object
 const pick = curry((xs, obj) =>
   Object.keys(obj)
     .reduce((acc, key) =>
@@ -116,6 +111,7 @@ const pick = curry((xs, obj) =>
     )
   );
 
+//:: [string] -> object -> object
 const omit = curry((xs, obj) =>
   Object.keys(obj)
     .filter(key => !xs.includes(key))
@@ -125,6 +121,7 @@ const omit = curry((xs, obj) =>
     )
   );
 
+//:: [object] -> object -> object
 const rename = curry((renames, obj) =>
   Object.keys(obj)
     .reduce((acc, key) =>
@@ -135,7 +132,45 @@ const rename = curry((renames, obj) =>
     )
   );
 
-const pickEx1 = pick(['foo'], { foo: 'bar', bah: 'boo' });
-const renameEx1 = rename({ foo: 'FOO' }, { foo: 'bar', boo: 'bah' });
+//:: [string] -> [object] -> [object]
+const project = curry((xs, table) => table.map(row => pick(xs, row)));
 
-debugger;
+//:: object -> [object] -> [object]
+const columnAs = curry((x, table) => table.map(row => rename(x, row)));
+
+//:: (a -> boolean) -> a -> [a]
+const where = curry((pred, xs) => xs.filter(pred));
+
+//:: [string] -> [object] -> [b]
+const pluck = curry((x, ys) => ys.map(y => y[x]));
+
+// examples
+const book = (title, isbn, ed, pages) => ({ isbn, title, ed, pages });
+
+const table = [
+  book('Don Quixote', '123-457-890', 1, 300),
+  book('Hamlet', '444-222-111', 2, 200),
+  book('Moby Dick', '777-282-999', 5, 600)
+];
+
+const getFirstEditions = pipe(
+  columnAs({ ed: 'edition' }),
+  project(['title', 'edition', 'isbn']),
+  where(book => book.edition === 1)
+);
+
+const getBooksLongerThanPage = n => pipe(
+  project(['title', 'pages', 'ed']),
+  where(book => book.pages > n)
+)
+
+const firstEds = getFirstEditions(table);
+//=> Don Quixote
+
+const over200 = getBooksLongerThanPage(200);
+const booksOver200 = over200(table);
+//=> Don Quixote, Moby Dick
+
+const findOver200AndFirstEds = pipe(over200, getFirstEditions);
+const firstEdsOver200 = findOver200AndFirstEds(table);
+//=> Don Quixote
