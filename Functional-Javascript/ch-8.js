@@ -171,6 +171,26 @@ const over200 = getBooksLongerThanPage(200);
 const booksOver200 = over200(table);
 //=> Don Quixote, Moby Dick
 
-const findOver200AndFirstEds = pipe(over200, getFirstEditions);
+const findOver200AndFirstEds = pipe(
+  over200,
+  getFirstEditions,
+  pluck('title')
+);
+
 const firstEdsOver200 = findOver200AndFirstEds(table);
 //=> Don Quixote
+
+/*
+  Both of the above examples relied on the fact that the data being returned was
+  stable. For example, LazyChain always expected another LazyChain to be returned,
+  or in pipe that the types were respected.
+
+  What if we need to interact with something that is not guaranteed to be stable?
+
+  Answer: actions & lazy chain.
+
+  Taken from: Stan 2011
+  http://igstan.ro/posts/2011-05-02-understanding-monads-with-javascript.html
+*/
+
+debugger;
