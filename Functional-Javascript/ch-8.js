@@ -192,5 +192,87 @@ const firstEdsOver200 = findOver200AndFirstEds(table);
   Taken from: Stan 2011
   http://igstan.ro/posts/2011-05-02-understanding-monads-with-javascript.html
 */
+const last = xs => xs.slice(-1).pop();
+const existy = x => typeof x !== 'undefined';
 
-debugger;
+const actions = (...args) => seed => {
+  const actions = args.slice(0, args.length - 1); 
+  const done = last(args);
+  const init = { values: [], state: seed };
+  const { values, state } = actions.reduce((stateObj, action) => {
+    const result = action(stateObj.state);
+    const values = stateObj.values.concat(result.answer);
+    return {
+      values,
+      state: result.state
+    };
+  }, init);
+  const keep = values.filter(existy);
+  return done(keep, state);
+};
+
+const sqr = n => n*n;
+
+const mSqr = state => {
+  var ans = sqr(state);
+  return { answer: ans, state: ans };
+};
+
+const doubleSquareAction = actions(mSqr, mSqr, values => values);
+const doubleAns = doubleSquareAction(10);
+//=> [100, 1000]
+
+const note = (args) => { console.log(args); };
+const mNote = state => {
+  note(state);
+  return { answer: undefined, state: state };
+};
+
+const neg = n => -n;
+const mNeg = state => ({ answer: -state, state: -state });
+
+const negativeSqrAction = actions(mSqr, mNote, mNeg,
+  (_, state) => state
+);
+
+const negativeSqrActionResult = negativeSqrAction(9);
+// Note: 81
+//=> -81
+
+/*
+  Constructing all of those mXX function can get a bit annoying. We can abstract
+  away the management of the state container with `lift`
+*/
+
+const lift = (answerFn, stateFn) => (...args) => state => {
+  const ans = answerFn.apply(null, [state, ...args]);
+  const nextState = stateFn ? stateFn(state) : ans;
+  return { answer: ans, state: nextState };
+};
+
+const mSqr2 = lift(sqr);
+const mNote2 = lift(note, identity => identity);
+const mNeg2 = lift(neg);
+
+const negativeSqrAction2 = actions(mSqr2(), mNote2(), mNeg2(), (_, state) => state);
+const negativeSqrActionResult2 = negativeSqrAction2(9);
+// NOTE: 81
+//=> -81
+
+
+// now with this I can create some interesting behaviors...
+var push = lift((stack, e) => [e, ...stack]);
+var pop = lift(([head]) => head, ([head, ...tail]) => tail);
+
+var stackAction = actions(
+  push(1),
+  push(2),
+  pop(),
+  (values, state) => state
+);
+
+const stackActionResult = stackAction([]);
+
+// the essence of a the stack is captured in a series of actions and stored in the
+// `stackAction` variable. Only when we call it will the stack be realized. Now
+// we can do neat stuff with composition around the stack action
