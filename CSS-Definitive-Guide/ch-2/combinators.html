@@ -1,0 +1,56 @@
+<style>
+  /* select any p tag that immediately follows a h1 */
+  h1 + p {
+    text-transform: uppercase;
+  }
+  /* general sibling rule */
+  /* select any ol that is a sibling of h2 */
+  h2 ~ol {
+    font-style: italic;
+  }
+</style>
+<div>
+  <h1>Foo</h1>
+  <p>bar</p>
+  <p>bah</p>
+</div>
+<div>
+  <h2>Subheading</h2>
+  <p>It is is the case that not every heading can be main heading. Some headings
+    must be subheadings. Examples include:
+  </p>
+  <ol>
+    <li>Headings that are less important</li>
+    <li>Headings that are subsidiary to more important headlines</li>
+  </ol>
+  <p>Let's restate for the record</p>
+  <ol>
+    <li>Headings that are less important</li>
+    <li>Heainds that are subsidiary to more important headlines</li>
+  </ol>
+</div>
+<style>
+  input:required {
+    border: 1px solid #f00;
+  }
+  input:optional {
+    border: 1px solid #ccc;
+  }
+</style>
+<div>
+  <input type="email" placeholder="enter an email address" required>
+  <input type="email" placeholder="enter an optional email address">
+  <input type="email" placeholder="optional email address" required="false">
+</div>
+<style>
+  textarea:read-only {
+    opacity: 0.75;
+  }
+  pre:read-write:hover {
+    border: 1px dashed green;
+  }
+</style>
+<div>
+  <textarea disabled></textarea>
+  <pre contenteditable>Type your own code!</pre>
+</div>
