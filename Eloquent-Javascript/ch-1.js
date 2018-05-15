@@ -36,7 +36,11 @@
 
 {
   console.log("-- start ex 2 --");
-  
+ 
+  // this is an overly complicated solution to the exercise. An easier way would
+  // be to just use imperative for-loop and test each input and render the output
+  // based on if-else statements
+
   // utils
   function compose(...fs) {
     return fs.reduce((a,b) => (...args) => a(b(...args)));
