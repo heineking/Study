@@ -24,30 +24,6 @@ Table of Contents
 
 ---
 
-## Microservices in .NET Core: with examples in Nancy, Gammelgaard
+## Eloquent Javascript
 
-1. Getting started with microservices
-   * Chapter 1. Microservices at a glance
-   * Chapter 2. A basic shopping cart microservice
-2. Building microservices
-   * Chapter 3. Identifying and scoping microservices
-   * Chapter 4. Microservice collaboration
-   * Chapter 5. Data ownership and data storage
-   * Chapter 6. Designing for robustness
-   * Chapter 7. Writing tests for microservices
-3. Handling cross-cutting concerns: building a reusable microservice platform
-   * Chapter 8. Introducing OWIN: writing and testing OWIN middleware
-   * Chapter 9. Cross-cutting concerns: monitoring and logging
-   * Chapter 10. Securing microservice-to-microservice communication
-   * Chapter 11. Building a reusable microservice platform
-4. Building applications
-   * Chapter 12. Creating applications over microservices
-
-| Week # | Chapters | Minutes | Complete |
-| ------ | -------- | ------- | -------- |
-| 1      | 1, 2     | 100     |          |
-| 2      | 3, 4     | 98      |          |
-| 3      | 5, 6     | 85      |          |
-| 4      | 7, 8     | 75      |          |
-| 5      | 9, 10    | 88      |          |
-| 6      | 11, 12   | 90      |          |
+http://eloquentjavascript.net/
