@@ -1,7 +1,3 @@
-/*
-
-*/
-const answers = {};
 
 function exercise(answer) {
   console.log(answer.question);
@@ -118,6 +114,14 @@ function exerciseTwo() {
 
 //exercise(exerciseTwo);
 
+/* Exercise 3 =============================================================== */
+
+exercise3.question = `
+Write a program that creates a string that represents an 8×8 grid, using newline
+characters to separate lines. At each position of the grid there is either a space 
+or a "#" character. The characters should form a chessboard.
+`;
+
 function exercise3() {
 
   function *range(start, end) {
@@ -151,10 +155,62 @@ function exercise3() {
   console.log(chessboard(14));
 }
 
-exercise3.question = `
-Write a program that creates a string that represents an 8×8 grid, using newline
-characters to separate lines. At each position of the grid there is either a space 
-or a "#" character. The characters should form a chessboard.
+// exercise(exercise3);
+
+exercise4.question = `
+The previous chapter introduced the standard function Math.min that returns its 
+smallest argument. We can build something like that now. Write a function min 
+that takes two arguments and returns their minimum
 `;
 
-exercise(exercise3);
+function exercise4() {
+
+  const randomNumbers = function* (min, max, length) {
+    while (--length > 0)
+      yield Math.round(Math.random()*(max-min)+min);
+  }
+
+  const min = (...xs) => {
+    if (xs.length)
+      return xs.reduce((y, x) => x < y ? x : y, xs[0]);
+  }
+
+  const xs = [...randomNumbers(0, 100, 5)];
+
+  console.log(`${JSON.stringify(xs)}, min: ${min(...xs)}`);
+}
+
+// exercise(exercise4);
+
+/* Exercise 5 ================================================================*/
+
+exercise5.question = `
+Define a recursive function isEven corresponding to this description. The
+function should accept a single parameter (a positive, whole number) and return 
+a Boolean.
+
+Test it on 50 and 75. See how it behaves on -1. Why? Can you think of a way to 
+fix this?
+`;
+
+function exercise5() {
+  // N is odd if N - 1 is even
+  const isOdd = (n) => {
+    if (n < 0) return isOdd(-1*n);
+    if (n === 1) return true;
+    return isEven(n - 1);
+  }
+
+  // N is even if N - 1 is odd
+  const isEven = n => {
+    if (n < 0) return isEven(-1*n);
+    if (n === 0) return true;
+    return isOdd(n - 1);
+  }
+
+  console.log(isEven(50));
+  console.log(isOdd(75));
+  console.log(isOdd(-1));
+}
+
+/* Exercise 6 ================================================================*/
