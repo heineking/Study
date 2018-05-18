@@ -275,12 +275,16 @@ runs faster?
 function exercise7() {
 
   // SLOW! This is because a new array is created each time an 'x' is placed
-  // into the array. This eats up a lot of memory and causes the GC to go crazy.
-  // The O(N) should be the summation of (n + 1) from n = 1 to n = 1,000,000
-  // which using the functions in exercise6 would be 500,000,500,000 new arrays
-  // being calculated, which is roughly a n^2 type curve, not as steep but still
-  // problematic.
+  // into the array. The new array at least N times. There could also be a cost
+  // of the spread operator (...) which could incur a n+1 cost per new array
+  // because each element of the array is spread into the new array. The O(N)
+  // for this would be summation of n + 1 from 1 to N, which is similar to n^2
+  // performance
   const reverseArray = xs => xs.reduce((ys, x) => [x, ...ys], []);
+
+  // Quicker! This is quicker because we're not spreading over the previous
+  // array elements and just concatenating the elements
+  const reverseArrayQuicker = xs => xs.reduce((ys, x) => [x].concat(ys), []);
 
   // Fast! This is because we lifted out the new array and initialized it the
   // length we wanted which we know already. This is even faster than the in
@@ -311,13 +315,14 @@ function exercise7() {
   let xs2 = ["a", "b", "c"];
  
   console.log("-- return new --");
-  console.log(reverseArray(xs1));
-  console.log(reverseArrayFaster(xs1)); 
-  console.log(xs1);
+  console.log(JSON.stringify(['reverseArray', reverseArray(xs1)]));
+  console.log(JSON.stringify(['reverseArrayFaster', reverseArrayFaster(xs1)]));
+  console.log(JSON.stringify(['reverseArrayQuicker', reverseArrayQuicker(xs1)]));
+  console.log(JSON.stringify(['xs1', xs1]));
 
   console.log("-- reverse in place --");
-  console.log(reverseArrayInPlace(xs2));
-  console.log(xs2);
+  console.log(JSON.stringify(['reverseArrayInPlace', reverseArrayInPlace(xs2)]));
+  console.log(JSON.stringify(['xs2', xs2]));
 
   // timing
   function* range(start, end) {
@@ -340,6 +345,9 @@ function exercise7() {
 
   timer(() => reverseArray(xs), 'reverseArray');
   // => 800ms
+
+  timer(() => reverseArrayInPlace(xs), 'reverseArrayQuicker');
+  // => 1ms
 
   timer(() => reverseArrayFaster(ys), 'reverseArrayFaster');
   // => 0ms
