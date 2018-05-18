@@ -362,4 +362,52 @@ function exercise7() {
   // => unfinished...
 }
 
-exercise7();
+// exercise(exercise7);
+
+exercise8.question = `
+Write a function arrayToList that builds up a list structure like the one shown 
+when given [1, 2, 3] as argument. Also write a listToArray function that produces 
+an array from a list. Then add a helper function prepend, which takes an element 
+and a list and creates a new list that adds the element to the front of the input 
+list, and nth, which takes a list and a number and returns the element at the 
+given position in the list (with zero referring to the first element) or undefined 
+when there is no such element.
+`;
+
+function exercise8() {
+  const arrayToList = ([head, ...tail]) => ({
+      value: head,
+      rest: head ? arrayToList(tail) : null
+    });
+ 
+  const listToArray = ({ value, rest }) => (
+    value
+      ? [value].concat(listToArray(rest))
+      : []
+  );
+
+  const prepend = (x, list) => ({ value: x, rest: list });
+
+  const nth = ({ value, rest }, n) => (
+    n <= 0
+      ? value ? value : undefined
+      : nth(rest, --n)
+  );
+  
+  console.log(JSON.stringify(arrayToList([10, 20])));
+  // => {"value":10,"rest":{"value":20,"rest":{"rest":null}}}
+
+  console.log(JSON.stringify(listToArray(arrayToList([10, 20]))));
+  // => [10, 20]
+
+  console.log(JSON.stringify(prepend(10, prepend(20, null))));
+  // => {"value":10,"rest":{"value":20,"rest":null}}
+
+  console.log(nth(arrayToList([10, 20, 30]), 1));
+  // => 20
+
+  console.log(nth(arrayToList([10, 20, 30]), 3));
+  // => undefined
+}
+
+// exercise(exercise8);
