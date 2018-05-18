@@ -254,10 +254,9 @@ function exercise6() {
   const sum = xs => xs.reduce((sum, x) => sum + x, 0);
 
   console.log(sum(range(1, 10)));
-  console.log(sum(range(1, 1000000)));
 }
 
-exercise(exercise6);
+// exercise(exercise6);
 
 exercise7.question = `
 Arrays have a reverse method which changes the array by inverting the order in 
@@ -276,7 +275,11 @@ runs faster?
 function exercise7() {
 
   // SLOW! This is because a new array is created each time an 'x' is placed
-  // into the array. This eats up a lot of memory and causes the GC to go crazy
+  // into the array. This eats up a lot of memory and causes the GC to go crazy.
+  // The O(N) should be the summation of (n + 1) from n = 1 to n = 1,000,000
+  // which using the functions in exercise6 would be 500,000,500,000 new arrays
+  // being calculated, which is roughly a n^2 type curve, not as steep but still
+  // problematic.
   const reverseArray = xs => xs.reduce((ys, x) => [x, ...ys], []);
 
   // Fast! This is because we lifted out the new array and initialized it the
