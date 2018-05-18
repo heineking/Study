@@ -254,6 +254,101 @@ function exercise6() {
   const sum = xs => xs.reduce((sum, x) => sum + x, 0);
 
   console.log(sum(range(1, 10)));
+  console.log(sum(range(1, 1000000)));
 }
 
 exercise(exercise6);
+
+exercise7.question = `
+Arrays have a reverse method which changes the array by inverting the order in 
+which its elements appear. For this exercise, write two functions, reverseArray 
+and reverseArrayInPlace. The first, reverseArray, takes an array as argument and 
+produces a new array that has the same elements in the inverse order. The second, 
+reverseArrayInPlace, does what the reverse method does: it modifies the array 
+given as argument by reversing its elements. Neither may use the standard 
+reverse method.
+
+Thinking back to the notes about side effects and pure functions in the previous 
+chapter, which variant do you expect to be useful in more situations? Which one 
+runs faster?
+`;
+
+function exercise7() {
+
+  // SLOW! This is because a new array is created each time an 'x' is placed
+  // into the array. This eats up a lot of memory and causes the GC to go crazy
+  const reverseArray = xs => xs.reduce((ys, x) => [x, ...ys], []);
+
+  // Fast! This is because we lifted out the new array and initialized it the
+  // length we wanted which we know already. This is even faster than the in
+  // place sort defined below
+  const reverseArrayFaster = xs => {
+    const ys = new Array(xs.length);
+
+    for(let i = xs.length - 1, j = 0; i >= 0; --i, ++j)
+      ys[j] = xs[i];
+
+    return ys;
+  };
+
+  const swap = (xs, i, j) => {
+    let xi = xs[i];
+    xs[i] = xs[j];
+    xs[j] = xi;
+  };
+
+  const reverseArrayInPlace = xs => {
+    for(let i = 0; i < xs.length / 2; ++i)
+      swap(xs, i, xs.length - 1 - i);
+
+    return xs;
+  };
+
+  let xs1 = ["a", "b", "c"];
+  let xs2 = ["a", "b", "c"];
+ 
+  console.log("-- return new --");
+  console.log(reverseArray(xs1));
+  console.log(reverseArrayFaster(xs1)); 
+  console.log(xs1);
+
+  console.log("-- reverse in place --");
+  console.log(reverseArrayInPlace(xs2));
+  console.log(xs2);
+
+  // timing
+  function* range(start, end) {
+    while (start <= end)
+      yield start++;
+  }
+
+  const timer = (fn, name) => {
+    const t0 = process.hrtime();
+    fn();
+    const t1 = process.hrtime(t0);
+    const elapsedInMs = Math.round((t1[0]*1000) + (t1[1]/1000000));
+    console.log(`Call to ${name} took ${elapsedInMs} ms`);
+  };
+
+  const xs = [...range(1, 5000)];
+  const ys = [...xs];
+  const zs = [...xs];
+  const xl = [...range(1, 1000000)];
+
+  timer(() => reverseArray(xs), 'reverseArray');
+  // => 800ms
+
+  timer(() => reverseArrayFaster(ys), 'reverseArrayFaster');
+  // => 0ms
+
+  timer(() => reverseArrayInPlace(zs), 'reverseArrayInPlace');
+  // => 1ms
+
+  timer(() => reverseArrayFaster(xl), 'reverseArrayInPlace, 1m items');
+  // => 7ms
+
+  // timer(() => reverseArray(xl), 'reverseArrayInPlace, 1m items');
+  // => unfinished...
+}
+
+exercise7();
