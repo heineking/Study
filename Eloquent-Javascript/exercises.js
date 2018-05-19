@@ -398,7 +398,7 @@ function exercise8() {
   );
   
   console.log(JSON.stringify(arrayToList([10, 20])));
-  // => {"value":10,"rest":{"value":20,"rest":{"rest":null}}}
+  // => {"value":10,"rest":{"value":20,"rest":null}}
 
   console.log(JSON.stringify(listToArray(arrayToList([10, 20]))));
   // => [10, 20]
@@ -413,4 +413,72 @@ function exercise8() {
   // => undefined
 }
 
-exercise(exercise8);
+// exercise(exercise8);
+
+exercise9.question = `
+Use the reduce method in combination with the concat method to “flatten” an 
+array of arrays into a single array that has all the elements of the original 
+arrays.
+`;
+
+function exercise9() {
+  let arrays = [[1, 2, 3], [4, 5], [6]];
+  const flatten = xs => xs.reduce((ys, x) => ys.concat(x), []);
+
+  console.log(JSON.stringify(flatten(arrays)));
+}
+
+// exercise(exercise9);
+
+exercise10.question = `
+Write a higher-order function loop that provides something like a for loop 
+statement. It takes a value, a test function, an update function, and a body 
+function. Each iteration, it first runs the test function on the current loop 
+value and stops if that returns false. Then it calls the body function, giving 
+it the current value. And finally, it calls the update function to create a new 
+value and starts from the beginning.
+
+When defining the function, you can use a regular loop to do the actual looping.
+`;
+
+function exercise10() {
+
+  function loop(val, testFn, incrFn, action) {
+    for (val; testFn(val); val = incrFn(val))
+      action(val);
+  }
+
+  loop(3, n => n > 0, n => n - 1, console.log);
+}
+
+// exercise(exercise10);
+
+exercise11.question = `
+Implement every as a function that takes an array and a predicate function as 
+parameters. Write two versions, one using a loop and one using the some method.
+`;
+
+function exercise11() {
+  function every(array, test) {
+    for(let x of array)
+      if (!test(x))
+        return false;
+    return true;
+  }
+
+  const every2 = (xs, test) => !xs.some(x => !test(x));
+
+  console.log(every([1, 3, 5], n => n < 10));
+  console.log(every2([1, 3, 5], n => n < 10));
+  // => true
+
+  console.log(every([2, 4, 16], n => n < 10));
+  console.log(every2([2, 4, 16], n => n < 10));
+  // => false
+
+  console.log(every([], n => n < 10));
+  console.log(every2([], n => n < 10));
+  // => true
+}
+
+// exercise(exercise11);
