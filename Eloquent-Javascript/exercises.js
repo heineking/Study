@@ -375,14 +375,17 @@ when there is no such element.
 `;
 
 function exercise8() {
+  
   const arrayToList = ([head, ...tail]) => ({
       value: head,
-      rest: head ? arrayToList(tail) : null
+      rest: tail.length 
+        ? arrayToList(tail) 
+        : null
     });
  
   const listToArray = ({ value, rest }) => (
     value
-      ? [value].concat(listToArray(rest))
+      ? [value].concat(listToArray(rest || {}))
       : []
   );
 
@@ -390,8 +393,8 @@ function exercise8() {
 
   const nth = ({ value, rest }, n) => (
     n <= 0
-      ? value ? value : undefined
-      : nth(rest, --n)
+      ? (value || undefined)
+      : nth(rest || {}, --n)
   );
   
   console.log(JSON.stringify(arrayToList([10, 20])));
@@ -410,4 +413,4 @@ function exercise8() {
   // => undefined
 }
 
-// exercise(exercise8);
+exercise(exercise8);
