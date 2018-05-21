@@ -71,17 +71,6 @@ function move(state, destination) {
   };
 }
 
-function dfs(graph, source, destination, stack = []) {
-  if (source === destination)
-    return stack;
-  
-  let neighbors = graph[source];
-  for(let neighbor of neighbors) {
-    if (!stack.includes(neighbor))
-      return dfs(graph, neighbor, destination, [...stack, neighbor])
-  }
-}
-
 function findShortestRoute(graph, source, destination) {
   let queue = [{ node: source, route: [] }];
   for (let { node, route } of queue) {
