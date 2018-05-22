@@ -64,30 +64,14 @@ function findBestRoute(state) {
   const { mailbag, parcels, place: source, roadGraph } = state;
 
   // get the possible destinations but prefer the unpicked up parcels first
-  const parcelCountByAddress = parcels.reduce((acc, parcel) => {
-    return {
-      ...acc,
-      [parcel.sender]: (acc[parcel.sender] || 0) + 1
-    }
-  }, {});
-  
-  const mailCountByAddress = mailbag.reduce((acc, mail) => {
-    return {
-      ...acc,
-      [mail.to]: (acc[mail.to] || 0) + 1
-    };
-  }, {});
-
   const parcelAddresses = parcels
-    .map(parcel => parcel.sender)
-    .sort((a, b) => parcelCountByAddress[b] - parcelCountByAddress[a]);
+    .map(parcel => parcel.sender);
  
   const mailBagAddresses = mailbag 
-    .map(mail => mail.to)
-    .sort((a, b) => mailCountByAddress[b] - mailCountByAddress[a]);
+    .map(mail => mail.to);
  
   const destinations = [...new Set([...parcelAddresses, ...mailBagAddresses])];
-
+  
   let bestRoute = [];
   for(let destination of destinations) {
     let route = findShortestRoute(roadGraph, source, destination);
@@ -95,7 +79,7 @@ function findBestRoute(state) {
     if (route.length === 1)
       return route;
 
-    if (route.length <= (bestRoute.length || Infinity))
+    if (route.length < (bestRoute.length || Infinity))
       bestRoute = route;
   }
 
@@ -152,7 +136,8 @@ const runRobot = (state) => {
   while (state.mailbag.length || state.parcels.length) {
     route = state.place === "" 
       ? ["Post Office"]
-      : findBestRoute(state);
+      : route.length ? route : findBestRoute(state);
+
     state = moveRobot(state, route.shift())
   }
   return state;
