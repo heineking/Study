@@ -15,6 +15,7 @@ const split = curryN((delimiter, s) => s.split(delimiter));
 
 module.exports = {
   compose,
+  curryN,
   map,
   filter,
   split

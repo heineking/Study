@@ -48,29 +48,6 @@ function* randomParcels(addresses, count) {
   }
 }
 
-function move(state, destination) {
-  const { 
-    bag, 
-    moves,
-    parcels, 
-    place, 
-    roadGraph, 
-  } = state;
-
-  if (!roadGraph[place].includes(destination))
-    return state;
-
-  const pickUp = parcels.filter(parcel => parcel.sender === place);
-
-  return {
-    ...state,
-    moves: moves + 1,
-    place: destination,
-    bag: bag.filter(mail => mail.to !== place).concat(pickUp),
-    parcels: parcels.filter(parcel => parcel.sender !== place)
-  };
-}
-
 function findShortestRoute(graph, source, destination) {
   let queue = [{ node: source, route: [] }];
   for (let { node, route } of queue) {
@@ -83,17 +60,133 @@ function findShortestRoute(graph, source, destination) {
   }
 }
 
+function findBestRoute(state) {
+  const { mailbag, parcels, place: source, roadGraph } = state;
+
+  // get the possible destinations but prefer the unpicked up parcels first
+  const parcelCountByAddress = parcels.reduce((acc, parcel) => {
+    return {
+      ...acc,
+      [parcel.sender]: (acc[parcel.sender] || 0) + 1
+    }
+  }, {});
+  
+  const mailCountByAddress = mailbag.reduce((acc, mail) => {
+    return {
+      ...acc,
+      [mail.to]: (acc[mail.to] || 0) + 1
+    };
+  }, {});
+
+  const parcelAddresses = parcels
+    .map(parcel => parcel.sender)
+    .sort((a, b) => parcelCountByAddress[b] - parcelCountByAddress[a]);
+ 
+  const mailBagAddresses = mailbag 
+    .map(mail => mail.to)
+    .sort((a, b) => mailCountByAddress[b] - mailCountByAddress[a]);
+ 
+  const destinations = [...new Set([...parcelAddresses, ...mailBagAddresses])];
+
+  let bestRoute = [];
+  for(let destination of destinations) {
+    let route = findShortestRoute(roadGraph, source, destination);
+
+    if (route.length === 1)
+      return route;
+
+    if (route.length <= (bestRoute.length || Infinity))
+      bestRoute = route;
+  }
+
+  return bestRoute;
+}
+
+const pickUpMail = (state) => {
+  const { mailbag, place, parcels } = state;
+  return {
+    ...state,
+    parcels: parcels.filter(parcel => parcel.sender !== place),
+    mailbag: mailbag.concat(parcels.filter(parcel => parcel.sender === place))
+  };
+};
+
+const dropOffMail = (state) => {
+  const { mailbag, place } = state;
+  const deliver = mailbag
+    .filter(mail => mail.to === place)
+    .reduce((deliver, mail) => {
+      deliver[mail.to] = (deliver[mail.to] || []).concat(mail);
+      return deliver;
+    }, state.deliver);
+
+  return {
+    ...state,
+    deliver,
+    mailbag: mailbag.filter(mail => mail.to !== place)
+  };
+};
+
+const moveToDestination = (destination) => (state) => {
+  const { moves, place, route } = state;
+  return {
+    ...state,
+    place: destination,
+    moves: moves + 1,
+    route: place ? [...route, place] : route
+  };
+}
+
+const moveRobot = (state, destination) => {
+  const { place } = state;
+  
+  return compose(
+    pickUpMail,
+    dropOffMail,
+    moveToDestination(destination)
+  )(state);
+};
+
+const runRobot = (state) => {
+  let route = [];
+  while (state.mailbag.length || state.parcels.length) {
+    route = state.place === "" 
+      ? ["Post Office"]
+      : findBestRoute(state);
+    state = moveRobot(state, route.shift())
+  }
+  return state;
+};
+
 let roadGraph = buildGraph(roads);
 let addresses = Object.keys(roadGraph);
 
-let state = {
-  addresses,
-  bag: [],
-  moves: 0,
-  parcels: [...randomParcels(addresses, 5)],
-  place: "Post Office",
-  roadGraph,
-};
+function getAverage(n) {
+  const results = [];
+  for (let i = 0; i < 50; ++i) {
+    let state = {
+      addresses,
+      deliver: {},
+      mailbag: [],
+      moves: 0,
+      parcels: [...randomParcels(addresses, n)],
+      place: "",
+      roadGraph,
+      route: []
+    };
 
-const route = findShortestRoute(roadGraph, "Post Office", "Town Hall");
-debugger;
+    state = runRobot(state);
+    results.push(state.moves);
+  }
+
+  return results.reduce((sum, moves) => sum + moves, 0) / results.length;
+}
+
+const n1 = addresses.length * 2;
+console.log(`Delivering ${n1} packages for ${addresses.length} addresses takes ${getAverage(n1)} moves on average`);
+// takes roughly 21 moves to deliver 22 packages... only slightly better than
+// the mailman route of looping all addresses twice which would take 22 moves.
+
+const n2 = addresses.length * 10;
+console.log(`Delivering ${n2} packages for ${addresses.length} addresses takes ${getAverage(n2)} moves on average`);
+// takes 25 moves. Definitely worse than the constant 22 moves...
