@@ -24,7 +24,6 @@ const timeout = (ms) => delayed(ms, () => { throw new Timeout("timeout"); });
 
 const retry = curry((ms, n, req) => new Promise((resolve, reject) => {
   let done = false;
-  const ifNotDone = doWhen(() => !done);
   const queue = [timeout(n*ms), ...createDelayedQueue(ms, n, () => () => !done ? req() : undefined)];
   Promise
     .race(queue)
