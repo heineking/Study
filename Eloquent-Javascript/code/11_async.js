@@ -17,14 +17,14 @@ const asyncPipe = (...fns) => fns.reduce((a,b) => async (...args) => b(await a(.
 const createDelayedQueue = curry((ms, attempts, fn) => repeatedly(attempts, (i) => delayed(ms*i, fn(i))));
 const delay = (ms = 0) => new Promise((resolve) => setTimeout(() => resolve(), ms));
 const delayed = curry((ms, f) => asyncPipe(delay, f)(ms));
-const doWhen = curry((pred, fn) => pred() ? fn() : undefined);
 const repeatedly = (n, f) => ((n <= 0) ? [] : [...repeatedly(n-1, f), f(n-1)]);
-const thunk = (f) => (...args) => f.apply(null, args.slice(0, f.length));
 const timeout = (ms) => delayed(ms, () => { throw new Timeout("timeout"); });
 
 const retry = curry((ms, n, req) => new Promise((resolve, reject) => {
   let done = false;
-  const queue = [timeout(n*ms), ...createDelayedQueue(ms, n, () => () => !done ? req() : undefined)];
+  const requestIfNotDone = () => () => !done ? req() : undefined;
+  const queue = [timeout(n*ms), ...createDelayedQueue(ms, n, requestIfNotDone)];
+
   Promise
     .race(queue)
     .then(resolve)
@@ -34,6 +34,7 @@ const retry = curry((ms, n, req) => new Promise((resolve, reject) => {
 
 describe("11_async", () => {
   describe("createDelayedQueue", () => {
+
     it("should execute a queue of functions on a delay", async () => {
       // arrange
       const results = [0,0,0];
@@ -50,25 +51,62 @@ describe("11_async", () => {
       
       const [first, second, third] = relativeExecutionTimes;
       expect(first).to.equal(0);
-      expect(second).to.be.within(248, 252);
-      expect(third).to.be.within(492, 502);
+      expect(second).to.be.within(245, 255);
+      expect(third).to.be.within(495, 505);
     });
+
   });
   describe("retry", () => {
-    it("should make all the calls in the queue successful", async () => {
+
+    it("initiate N retries if retry ms = N-1 x response time", async () => {
       // arrange
+      const responseDelay = 100;
+      const n = 3;
+      const ms = responseDelay / (n-1);
+
       let calls = 0;
       const noop = () => { };
       const request = () => {
         ++calls;
-        return delayed(100, noop);
+        return delayed(responseDelay, noop);
       };
 
       // act
-      await retry(50, 3, request);
+      await retry(ms, n, request);
       
       // assert
-      expect(calls).to.equal(3);
+      expect(calls).to.equal(n);
+    });
+
+    it("should not retry after a successful call is returned", async () => {
+      // arrange
+      const delayTimes = [100, 0, 100];
+      const n = delayTimes.length;
+      const requestMade = [false, false, false];
+      const successfulRequest = [false, false, false];
+      let requestIndex = 0;
+
+      const callback = (requestIndex) => () => {
+        successfulRequest[requestIndex] = true;
+      };
+
+      const request = () => {
+        const index = requestIndex++;
+        requestMade[index] = true;
+        return delayed(delayTimes.shift(), callback(index));
+      };
+
+      // act
+      await retry(50, n, request);
+
+      // assert
+      expect(requestMade[0]).to.equal(true);
+      expect(requestMade[1]).to.equal(true);
+      expect(requestMade[2]).to.equal(false);
+
+      expect(successfulRequest[0]).to.equal(false);
+      expect(successfulRequest[1]).to.equal(true);
+      expect(successfulRequest[2]).to.equal(false);
     });
   });
 });
