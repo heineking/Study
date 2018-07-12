@@ -108,5 +108,19 @@ describe("11_async", () => {
       expect(successfulRequest[1]).to.equal(true);
       expect(successfulRequest[2]).to.equal(false);
     });
+
+    it("should throw a timeout error if the retry expires", async () => {
+      // arrange
+      const request = () => {
+        return delay(100);
+      };
+
+      // act
+      let timeoutError;
+      await retry(10, 3, request).catch(err => { timeoutError = (err instanceof Timeout); });
+
+      // assert
+      expect(timeoutError).to.equal(true);
+    });
   });
 });
