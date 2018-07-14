@@ -124,3 +124,21 @@ describe("11_async", () => {
     });
   });
 });
+
+// Generators
+function* powers(n) {
+  for (let current = n;; current *= n)
+    yield current;
+}
+
+describe("powersLessThan", () => {
+  it("should stop after generator returns greater than 50", () => {
+    const values = [];
+    for (let power of powers(3))
+      if (power > 50) break;
+      else values.push(power);
+      
+    expect(values).to.eql([3, 9, 27]);
+  });
+});
+
