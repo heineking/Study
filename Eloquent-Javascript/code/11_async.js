@@ -142,3 +142,21 @@ describe("powersLessThan", () => {
   });
 });
 
+const eventLoopExample = (cb) => {
+  const start = Date.now();
+  setTimeout(() => {
+    cb(Date.now() - start);
+  }, 20);
+  while (Date.now() < start + 50) {}
+};
+
+describe("eventLoopExample", () => {
+  it("should cause the setTimeout to be late", () => {
+    // arrange
+    // act
+    // assert
+    eventLoopExample(waited => {
+      expect(waited).to.be.within(50, 51);
+    });
+  });
+});

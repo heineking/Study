@@ -22,14 +22,18 @@ const zip = (xs, ys) => xs.map((x, i) => [x, ys[i]]);
 const map = curry((fn, xs) => xs.map(fn));
 const reduce = curry((fn, seed, xs) => xs.reduce(fn, seed));
 const delta = ([a,b]) => a - b;
-const deltas = compose(map(partial1(Math.abs)), map(delta), zip);
+const deltas = compose(map(compose(partial1(Math.abs), delta)), zip);
 
 const Vec = (a) => ({
-  a,
   add(vec) {
     const [dx,dy] = deltas(...vec);
-    const [[x0, y0], [x1, y1]] = a;
-    return Vec([[x0, y0], [x1+dx, y1+dy]]);
+    const [origin, [x1, y1]] = a;
+    return Vec([origin, [x1+dx, y1+dy]]);
+  },
+  minus(vec) {
+    const [dx,dy] = deltas(...vec);
+    const[origin, [x1, y1]] = a;
+    return Vec([origin, [x1-dx, y1-dy]]);
   },
   get length() {
     return compose(
@@ -40,16 +44,18 @@ const Vec = (a) => ({
     )(...a);
   },
   toString() {
-    return JSON.stringify(a);
+    return `Vec(${JSON.stringify(a)})`;
   },
   [Symbol.iterator]: function*() {
     yield* a;
   }
 });
 
-const vec1 = Vec([[1,1], [2, 2]]);
-const vec2 = Vec([[0,0], [1, 1]]);
-const vec3 = vec1.add(vec2);
+const vec1 = Vec([[0,0],[1,2]]).add(Vec([[0,0],[2,3]]));
+console.log(vec1.toString());
 
-console.log(vec1.length);
-console.log(vec3.toString());
+const vec2 = Vec([[0,0], [1,2]]).minus(Vec([[0,0], [2,3]]));
+console.log(vec2.toString());
+
+const vec3 = Vec([[0,0],[3,4]]);
+console.log(vec3.length);
