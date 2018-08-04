@@ -97,10 +97,9 @@
 	const not = (fn) => (...args) => !fn(...args);
 	const ofType = curry((type, x) => typeof x === type);	
 	const greaterThan = curry((n, x) => x > n);
-	const defined = (x) => x == null;
-	const empty = (x) => x === "";
+	const empty = (x) => x === "" || x == null;
 	const whiteSpace = (x) => x.replace(/\s/g, "") === "";
-	const nullOrEmpty = (x) => defined(x) || not(whiteSpace(""));
+	const nullOrEmpty = (x) => empty(x) || not(whiteSpace(""));
 
 	const isNumber = makeValidator("must be a number", ofType("number"));
 	const isString = makeValidator("must be a string", ofType("string"));	
