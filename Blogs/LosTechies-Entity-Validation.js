@@ -53,11 +53,15 @@
 
 	if (order.validate(out)) {
 		console.log(JSON.stringify(out));
+		// => {"errors":["id cannot be less than 0.","must include a customer."]}
 	}
 }
 
 /**
- * 
+ * A more "functional" port of the order / entity validation approach. The code
+ * here is longer but I think there is greater separation of concerns which makes
+ * it easier to understand and reason about. I also think there is greater chance
+ * for reusability because the validation has been lifted out of the  
  */
 {
 
