@@ -1,57 +1,32 @@
-<style>
-	tab-panel > div {
-		display: none;
-	}
-	tab-panel > div.active {
-		display: block;
-	}
-</style>
-<body>
-	<tab-panel>
-		<div data-tabname="one">Tab One</div>
-		<div data-tabname="two">Tab Two</div>
-		<div data-tabname="three">Tab Three</div>
-	</tab-panel>
-</body>
+<tab-panel>
+	<div data-tabname="one">Tab One</div>
+	<div data-tabname="two">Tab Two</div>
+	<div data-tabname="three">Tab Three</div>
+</tab-panel>
 
 <script>
-	const tabs = [];
-
-	function activateTab(tabs, tabname) {
-		for(let tab of tabs) {
-			if (tab.getAttribute("data-tabname") === tabname)
-				tab.classList.add("active");
-			else
-				tab.classList.remove("active");
-		}
-	}
-
-	function onTabBtnClick(e) {
-		const tabname = e.target.getAttribute("data-tabname");
-		activateTab(tabs, tabname);
-	}
-
-	function createButtons(tabs) {
-		for(tab of tabs) {
-			let btn = document.createElement("button");
-			let name = tab.getAttribute("data-tabname");
-			
-			btn.innerText = name;
-			btn.setAttribute("data-tabname", name);
-			btn.addEventListener("click", onTabBtnClick);
-
-			document
-				.getElementsByTagName("body")[0]
-				.insertBefore(btn, document.querySelector("tab-panel"));
-		}
-	}
-
 	function asTabs(node) {
-		for(let tab of node.children) {
-			tabs.push(tab);
+		const tabs = Array.from(node.children).map(node => {
+			let button = document.createElement("button");
+			button.textContent = node.getAttribute("data-tabname");
+			let tab = {node, button};
+			button.addEventListener("click", () => selectTab(tab));
+			return tab;
+		});
+		let tabList = document.createElement("div");
+		for (let {button} of tabs) {
+			tabList.appendChild(button);
 		}
-		tabs[0].classList.add("active");
+		node.insertBefore(tabList, node.firstChild);
+
+		function selectTab(selectedTab) {
+			for (let tab of tabs) {
+				let selected = tab === selectedTab;
+				tab.node.style.display = selected ? "" : "none";
+				tab.button.style.color = selected ? "red" : "";
+			}
+		}
+		selectTab(tabs[0]);
 	}
 	asTabs(document.querySelector("tab-panel"));
-	createButtons(tabs);
 </script>
