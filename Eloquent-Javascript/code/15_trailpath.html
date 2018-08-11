@@ -1,0 +1,62 @@
+<style>
+	body {
+		border: 1px solid red;
+		height: 300px;
+	}
+	.trail {
+		position: absolute;
+		height: 6px;
+		width: 6px;
+		border-radius: 3px;
+		background: teal;
+	}
+</style>
+<body>
+
+</body>
+
+<script>
+	const repeatedly = (n, action) => n > 0 ? [action(n), ...repeatedly(n - 1, action)] : [];
+
+	const curry = (f, arity = f.length, received = []) => {
+		return (...args) => {
+			const combined = [...received, ...args];
+			const argsLeft = arity - combined.length;
+			return argsLeft > 0
+				? curry(f, argsLeft, combined)
+				: f.apply(null, combined);
+		};
+	};
+
+	let scheduled = null;
+	const throttled = (ms, fn) => {
+		return (...args) => {
+			if (scheduled) return;
+			setTimeout(() => {
+				fn(...scheduled);
+				scheduled = null;
+			}, ms);
+			scheduled = args;
+		};
+	};
+
+	const dotHandler = curry((dots, event) => {
+		const dot = dots.shift();
+		dot.remove();
+		const { pageX, pageY } = event;
+		dot.style.left = `${pageX}px`;
+		dot.style.top = `${pageY}px`;
+		dots.push(dot);
+		document.getElementsByTagName("body")[0].appendChild(dot);
+	});
+
+	const dots = repeatedly(3, () => {
+		var dot = document.createElement("dot");
+		dot.classList.add("trail");
+		return dot;
+	});
+
+	dots.forEach(dot => document.getElementsByTagName("body")[0].appendChild(dot));
+
+	document.addEventListener("mousemove", throttled(50, dotHandler(dots)));
+</script>

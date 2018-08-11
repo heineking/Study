@@ -1,0 +1,57 @@
+<style>
+	tab-panel > div {
+		display: none;
+	}
+	tab-panel > div.active {
+		display: block;
+	}
+</style>
+<body>
+	<tab-panel>
+		<div data-tabname="one">Tab One</div>
+		<div data-tabname="two">Tab Two</div>
+		<div data-tabname="three">Tab Three</div>
+	</tab-panel>
+</body>
+
+<script>
+	const tabs = [];
+
+	function activateTab(tabs, tabname) {
+		for(let tab of tabs) {
+			if (tab.getAttribute("data-tabname") === tabname)
+				tab.classList.add("active");
+			else
+				tab.classList.remove("active");
+		}
+	}
+
+	function onTabBtnClick(e) {
+		const tabname = e.target.getAttribute("data-tabname");
+		activateTab(tabs, tabname);
+	}
+
+	function createButtons(tabs) {
+		for(tab of tabs) {
+			let btn = document.createElement("button");
+			let name = tab.getAttribute("data-tabname");
+			
+			btn.innerText = name;
+			btn.setAttribute("data-tabname", name);
+			btn.addEventListener("click", onTabBtnClick);
+
+			document
+				.getElementsByTagName("body")[0]
+				.insertBefore(btn, document.querySelector("tab-panel"));
+		}
+	}
+
+	function asTabs(node) {
+		for(let tab of node.children) {
+			tabs.push(tab);
+		}
+		tabs[0].classList.add("active");
+	}
+	asTabs(document.querySelector("tab-panel"));
+	createButtons(tabs);
+</script>

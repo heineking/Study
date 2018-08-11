@@ -1,0 +1,45 @@
+<p style="position: absolute; margin: 0; padding: 0">🎈</p>
+
+<script>
+	const getOrDefault = (fn, value) => {
+		return (...args) => {
+			const result = fn(...args);
+			return result == undefined ? value : result;
+		}
+	};
+
+	const getFontSize = getOrDefault((node) => {
+		const match = node.style.fontSize.match(/^\d+.?\d*/);
+		return match;
+	}, 18);
+
+	const p = document.getElementsByTagName("p")[0];
+
+	// grow or deflate the balloon
+	document.addEventListener("keydown", event => {
+		if (event.key === "ArrowUp") {
+			p.style.fontSize = `${getFontSize(p)*1.10}px`;
+		}
+		if (event.key === "ArrowDown") {
+			p.style.fontSize = `${getFontSize(p)*0.90}px`;
+		}
+	});
+
+	// move
+	p.addEventListener("mousedown", event => {
+		if (event.buttons != 0) {
+			document.addEventListener("mousemove", moved);
+			event.preventDefault();
+		}
+	});
+	
+	function moved(event) {
+		if (event.buttons == 0) {
+			window.removeEventListener("mousemove", moved);
+		} else {
+			const { pageX, pageY } = event;
+			p.style.left = `${pageX}px`;
+			p.style.top = `${pageY}px`;
+		}
+	}
+</script>
