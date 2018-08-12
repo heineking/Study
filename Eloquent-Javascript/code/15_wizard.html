@@ -1,0 +1,53 @@
+<!-- 
+	This is a small tweak on the 15_tabs.html exercise. Wanted to apply the
+	same logic into a wizard-form example.
+-->
+<!doctype html>
+<wizard-panel>
+	<div>
+		<h4>Step 1</h4>
+		<form id="form1">
+			<input required />
+			<input type="submit" />
+		</form>
+	</div>
+	<div>
+		<h4>Step 2</h4>
+		<form id="form2">
+			<input required />
+			<input type="submit" value="submit" />
+		</form>
+	</div>
+</wizard-panel>
+
+<script>
+	function asWizard(node) {
+		const completed = [];
+
+		const steps = Array.from(node.children).map(node => {
+			let form = Array.from(node.children).find(node => node.tagName.toLowerCase() === "form");
+			let step = {node, form};
+			form.addEventListener("submit", e => {
+				submitStep(step);
+				e.preventDefault();
+			});
+			return step;
+		});
+
+		function submitStep(step) {
+			const { node } = step;
+			node.style.display = "none";
+			completed.push(step);
+			steps.shift();
+			if (steps.length) {
+				steps[0].node.style.display = "";
+			}
+		}
+
+		steps.slice(1).forEach(({ node }) => {
+			node.style.display = "none";
+		});
+	}
+
+	asWizard(document.querySelector("wizard-panel"));
+</script>
