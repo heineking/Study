@@ -3,33 +3,52 @@
 	same logic into a wizard-form example.
 -->
 <!doctype html>
+<form>
 <wizard-panel>
 	<div>
-		<h4>Step 1</h4>
-		<form id="form1">
-			<input required />
-			<input type="submit" />
-		</form>
+		<fieldset>
+			<legend>Name</legend>
+			<div>
+				<label>
+					First Name
+					<input required />
+				</label>
+				<label>
+					Last Name
+					<input required />
+				</label>
+			</div>
+		</fieldset>
+		<button type="button">Next</button>
 	</div>
 	<div>
-		<h4>Step 2</h4>
-		<form id="form2">
-			<input required />
-			<input type="submit" value="submit" />
-		</form>
+		<fieldset>
+			<legend>Password</legend>
+			<div>
+				<label>
+					Password
+					<input type="password" />
+				</label>
+				<label>
+					Confirm Password
+					<input type="password" />
+				</label>
+			</div>
+		</fieldset>
+		<button type="button">Submit</button>
 	</div>
 </wizard-panel>
-
+</form>
 <script>
 	function asWizard(node) {
 		const completed = [];
 
 		const steps = Array.from(node.children).map(node => {
-			let form = Array.from(node.children).find(node => node.tagName.toLowerCase() === "form");
-			let step = {node, form};
-			form.addEventListener("submit", e => {
-				submitStep(step);
-				e.preventDefault();
+			let [fieldset, button] = node.children;
+			let step = {node, fieldset};
+			button.addEventListener("click", e => {
+				if (fieldset.checkValidity())
+					submitStep(step);
 			});
 			return step;
 		});
