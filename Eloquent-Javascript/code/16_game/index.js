@@ -9,14 +9,14 @@ const simpleLevelPlan = `
 ......##############..
 ......................`;
 
-const vec = (x, y) => ({
+const vector = ({ x, y }) => ({
 	x, y,
 	plus({ x: dx, y: dy }) {
-		return vec(x + dx, y + dy);
+		return vector({ x: x + dx, y: y + dy });
 	},
 	times(factor) {
-		return vec(x * factor, y * factor);
-	}
+		return vector({ x: x * factor, y: y * factor });
+	},
 });
 
 const store = (() => {
@@ -31,12 +31,24 @@ const store = (() => {
 		actors: [],
 	};
 
-	// getters
-	Object.defineProperty(state, "player", {
-		get() {
-			return state.actors.find(a => a.type === "player");
+	// listener callbacks
+	const listeners = [];
+
+	// prototypes
+	const prototypes = {
+		coin: {
+			size: vector({ x: 0.6, y: 0.6 }),
+		},
+		lava: {
+			size: vector({ x: 1, y: 1 }),
+		},
+		player: {
+			size: vector({
+				x: 0.8,
+				y: 1.5,
+			}),
 		}
-	});
+	};
 
 	// reducers
 	const mutations = {
@@ -51,22 +63,95 @@ const store = (() => {
 				},
 			};
 		},
+		convertLevelChar(state, { x, y, text }) {
+			// in memory mutation :/
+			state.level.rows[y][x] = text;
+			return state;
+		},
+		createCoin(state, { x, y }) {
+			const coin = Object.create(prototypes.coin);
+
+			const position = vector({ x, y });
+			Object.assign(coin, {
+				position: position.plus({ x: 0.2, y: 0.1 }),
+				basePosition: position.plus({ x: 0.2, y: 0.1 }),
+				type: "coin",
+				wobble: Math.random() * Math.PI * 2,
+			});
+
+			return {
+				...state,
+				actors: state.actors.concat(coin),
+			}
+		},
+		createLava(state, { x, y, ch }) {	
+			const lava = Object.create(prototypes.lava);
+			Object.assign(lava, {
+				position: vector({ x, y }),
+				type: "lava",
+			});
+
+			if (ch === "=") {
+				lava.speed = vector({ x: 2, y: 0 });
+			} else if (ch === "|") {
+				lava.speed = vector({ x: 0, y: 2 });
+			} else if (ch === "v") {
+				lava.speed = vector({ x: 0, y: 3 });
+				lava.reset = vector(lava.position);
+			}
+
+			return {
+				...state,
+				actors: state.actors.concat(lava),
+			};
+		},
+		createPlayer(state, { x, y }) {
+			const player = Object.create(prototypes.player);
+			Object.assign(player, {
+				type: "player",
+				position: vector({ x, y }).plus({ x: 0, y: -0.5 }),
+				speed: vector({ x: 0, y: 0 }),
+			});
+
+			return {
+				...state,
+				actors: state.actors.concat(player),
+			};
+		}
 	};
 
 	const reducer = (state, { type, payload }) => {
 		const mutation = mutations[type];
 		return mutation ? mutation(state, payload) : state;
 	};
+
+	// utilities
+	const getState = () => state;
 	
 	const dispatch = (action) => {
-		const nextState = reducer(state, action);
-		if (nextState !== state) {
-			console.log(state, nextState);
-			state = nextState;
-		}
+		state = reducer(state, action);
 	};
 
-	return { dispatch };
+	// middleware
+	const logger = store => next => action => {
+		console.group(action.type);
+		console.info("dispatching", action);
+		let result = next(action);
+		console.log("next state", store.getState());
+		console.groupEnd();
+		return result;
+	};
+
+	// store api
+	const middlewareAPI = {
+		getState,
+		dispatch: (...args) => dispatch(...args),
+	};
+
+	return {
+		getState,
+		dispatch: logger(middlewareAPI)(dispatch),
+	};
 })();
 
 store.dispatch({
@@ -74,6 +159,39 @@ store.dispatch({
 	payload: {
 		plan: simpleLevelPlan
 	},
+});
+
+const { level: { rows } } = store.getState();
+
+const actorCharsToActionType = {
+	"@": "createPlayer",
+	"o": "createCoin",
+	"=": "createLava",
+	"|": "createLava",
+	"v": "createLava",
+};
+
+const gridCharsToGridTypes = {
+	".": "empty",
+	"#": "wall",
+	"+": "lava",
+};
+
+rows.forEach((row, y) => {
+	return row.forEach((ch, x) => {
+		// create the actor
+		const actorActionType = actorCharsToActionType[ch];
+
+		if (actorActionType) {
+			store.dispatch({ type: actorActionType, payload: { x, y, ch } });
+			store.dispatch({ type: "convertLevelChar", payload: { x, y, text: "empty" } });
+		}
+
+		const gridType = gridCharsToGridTypes[ch];
+		if (gridType) {
+			store.dispatch({ type: "convertLevelChar", payload: { x, y, text: gridType } });
+		}
+	});
 });
 
 const app = document.getElementById("level");
