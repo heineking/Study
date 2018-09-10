@@ -127,9 +127,14 @@ const store = (() => {
 
 	// utilities
 	const getState = () => state;
-	
+
+	const subscribe = (listener) => {
+		listeners.push(listener);
+	};
+
 	const dispatch = (action) => {
 		state = reducer(state, action);
+		listeners.forEach(listener => listener());
 	};
 
 	// middleware
@@ -150,6 +155,7 @@ const store = (() => {
 
 	return {
 		getState,
+		subscribe,
 		dispatch: logger(middlewareAPI)(dispatch),
 	};
 })();
@@ -194,5 +200,41 @@ rows.forEach((row, y) => {
 	});
 });
 
+const scale = 20;
+function drawGrid(level) {
+	return elt("table", {
+		class: "background",
+		style: `width: ${level.width * scale}px`
+	}, ...level.rows.map(row => 
+		elt("tr", { style: `height: ${scale}px`},
+					...row.map(type => elt("td", { class: type })))
+	));
+}
+
+function drawActors(actors) {
+	return elt("div", {}, ...actors.map(actor => {
+		let rect = elt("div", { class: `actor ${actor.type}`});
+		rect.style.width = `${actor.size.x * scale}px`;
+		rect.style.height = `${actor.size.y * scale}px`;
+		rect.style.left = `${actor.position.x * scale}px`;
+		rect.style.top = `${actor.position.y * scale}px`;
+		return rect;
+	}))
+}
+
+// Game
+const dom = elt("div", { class: "game" }, drawGrid(store.getState().level));
+
+let actorLayer = null;
+
+function syncState() {
+	if (actorLayer) actorLayer.remove();
+	const state = store.getState();
+	actorLayer = drawActors(state.actors);
+	dom.appendChild(actorLayer);
+	dom.className = `game ${state.status}`;
+}
+
 const app = document.getElementById("level");
-app.textContent = simpleLevelPlan;
+app.appendChild(dom);
+syncState();
