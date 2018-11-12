@@ -1,72 +1,72 @@
 <!-- 
-	This is a small tweak on the 15_tabs.html exercise. Wanted to apply the
-	same logic into a wizard-form example.
+  This is a small tweak on the 15_tabs.html exercise. Wanted to apply the
+  same logic into a wizard-form example.
 -->
 <!doctype html>
 <form>
 <wizard-panel>
-	<div>
-		<fieldset>
-			<legend>Name</legend>
-			<div>
-				<label>
-					First Name
-					<input required />
-				</label>
-				<label>
-					Last Name
-					<input required />
-				</label>
-			</div>
-		</fieldset>
-		<button type="button">Next</button>
-	</div>
-	<div>
-		<fieldset>
-			<legend>Password</legend>
-			<div>
-				<label>
-					Password
-					<input type="password" />
-				</label>
-				<label>
-					Confirm Password
-					<input type="password" />
-				</label>
-			</div>
-		</fieldset>
-		<button type="button">Submit</button>
-	</div>
+  <div>
+    <fieldset>
+      <legend>Name</legend>
+      <div>
+        <label>
+          First Name
+          <input required />
+        </label>
+        <label>
+          Last Name
+          <input required />
+        </label>
+      </div>
+    </fieldset>
+    <button type="button">Next</button>
+  </div>
+  <div>
+    <fieldset>
+      <legend>Password</legend>
+      <div>
+        <label>
+          Password
+          <input type="password" />
+        </label>
+        <label>
+          Confirm Password
+          <input type="password" />
+        </label>
+      </div>
+    </fieldset>
+    <button type="button">Submit</button>
+  </div>
 </wizard-panel>
 </form>
 <script>
-	function asWizard(node) {
-		const completed = [];
+  function asWizard(node) {
+    const completed = [];
 
-		const steps = Array.from(node.children).map(node => {
-			let [fieldset, button] = node.children;
-			let step = {node, fieldset};
-			button.addEventListener("click", e => {
-				if (fieldset.checkValidity())
-					submitStep(step);
-			});
-			return step;
-		});
+    const steps = Array.from(node.children).map(node => {
+      let [fieldset, button] = node.children;
+      let step = {node, fieldset};
+      button.addEventListener("click", e => {
+        if (fieldset.checkValidity())
+          submitStep(step);
+      });
+      return step;
+    });
 
-		function submitStep(step) {
-			const { node } = step;
-			node.style.display = "none";
-			completed.push(step);
-			steps.shift();
-			if (steps.length) {
-				steps[0].node.style.display = "";
-			}
-		}
+    function submitStep(step) {
+      const { node } = step;
+      node.style.display = "none";
+      completed.push(step);
+      steps.shift();
+      if (steps.length) {
+        steps[0].node.style.display = "";
+      }
+    }
 
-		steps.slice(1).forEach(({ node }) => {
-			node.style.display = "none";
-		});
-	}
+    steps.slice(1).forEach(({ node }) => {
+      node.style.display = "none";
+    });
+  }
 
-	asWizard(document.querySelector("wizard-panel"));
+  asWizard(document.querySelector("wizard-panel"));
 </script>
