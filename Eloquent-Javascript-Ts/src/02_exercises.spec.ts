@@ -18,4 +18,7 @@ describe('fizzBuzz()', () => {
   it('should print FizzBuzz when divisible by 3 and 5', () => {
     expect(fizzBuzz(15)).to.equal('FizzBuzz');
   });
+  it('should print the number when not divisible by 3 or 5', () => {
+    expect(fizzBuzz(2)).to.equal(2);
+  });
 });
