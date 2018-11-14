@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { drawTriangle, fizzBuzz } from './02_exercises';
+import { drawTriangle, fizzBuzz, chessboard } from './02_exercises';
 
 describe('drawTriangle()', () => {
   it('should draw a triangle by base length', () => {
@@ -20,5 +20,22 @@ describe('fizzBuzz()', () => {
   });
   it('should print the number when not divisible by 3 or 5', () => {
     expect(fizzBuzz(2)).to.equal(2);
+  });
+});
+
+describe('chessboard()', () => {
+  it('should print a chessboard', () => {
+    const board = [
+      ['#', ' ', '#', ' ', '#', ' '].join(''),
+      [' ', '#', ' ', '#', ' ', '#'].join(''),
+      ['#', ' ', '#', ' ', '#', ' '].join(''),
+      [' ', '#', ' ', '#', ' ', '#'].join(''),
+      ['#', ' ', '#', ' ', '#', ' '].join(''),
+      [' ', '#', ' ', '#', ' ', '#'].join(''),
+    ].join('\n');
+    expect(chessboard(6)).to.equal(board);
+  });
+  it('should throw if passed an odd size', () => {
+    expect(() => chessboard(3)).to.throw(TypeError);
   });
 });

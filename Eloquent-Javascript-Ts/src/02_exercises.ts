@@ -45,3 +45,18 @@ export const fizzBuzz = dispatch(
   compose(doWhen(() => 'Buzz'), divisibleBy5),
   (n: number): number => n,
 );
+
+/*
+Write a program that creates a string that represents an 8×8 grid, using newline
+characters to separate lines. At each position of the grid there is either a space
+or a "#" character. The characters should form a chessboard.
+*/
+export const chessboard = (size: number) => {
+  if (size % 2 !== 0) {
+    throw new TypeError(`size must be an even number. Found ${size} instead`);
+  }
+  const row = (unit: string) => repeatedly(size / 2, () => unit).join('');
+  return range(1, size)
+    .map((n): string => row(n % 2 === 1 ? '# ' : ' #'))
+    .join('\n');
+};
