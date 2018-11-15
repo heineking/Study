@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Progam",
+      "restart": true,
+      "program": "${workspaceFolder}/src/index.ts",
+      "cwd": "${workspaceFolder}",
+      "outFiles": [
+        "${workspaceFolder}/bin/**/*.js"
+      ],
+      "sourceMaps": true
+    }
+  ]
+}
