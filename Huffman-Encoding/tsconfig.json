@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "esnext",
+    "module": "commonjs",
     "strict": true,
     "importHelpers": true,
-    "moduleResolution": "node",
+    "moduleResolution": "classic",
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -12,7 +12,9 @@
     "baseUrl": ".",
     "outDir": "bin",
     "types": [
-      "node"
+      "node",
+      "chai",
+      "mocha"
     ],
     "paths": {
       "@/*": [
