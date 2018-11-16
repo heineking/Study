@@ -33,7 +33,7 @@ export const invertTree = (x: any, path: string = ''): any => {
   if (typeof x !== 'object') {
     return { [x]: path };
   }
-  let inverted = Object.create(null);
+  const inverted = Object.create(null);
   for(const [key, value] of Object.entries(x)) {
     Object.assign(inverted, invertTree(value, `${path}${key}`));
   }
