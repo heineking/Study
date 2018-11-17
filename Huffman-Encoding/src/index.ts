@@ -40,10 +40,23 @@ export const invertTree = (x: any, path: string = ''): any => {
   return inverted;
 };
 
+export const convertToArray = (node: Node): any[] => {
+  return Object
+    .entries(node)
+    .reduce((xs: any[], entry): any[] => {
+      const [key, val] = entry;
+      xs[+key] = typeof val === 'string'
+        ? val
+        : convertToArray(val);
+      return xs;
+    }, []);
+};
+
 export const encode = (str: string): string => {
   const chars = str.split('');
   const freq = getCharFrequencies(str.split(''));
   const tree = createTree(Object.entries(freq));
   const encoding = invertTree(tree);
-  return chars.map((char) => encoding[char]).join('');
+  const encoded = chars.map((char) => encoding[char]).join('');
+  return `${JSON.stringify(convertToArray(tree))};${encoded}`;
 };
