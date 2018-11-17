@@ -53,6 +53,26 @@ export const convertToArray = (node: Node): any[] => {
     }, []);
 };
 
+export const invertTable = (table: {[key: string]: string }): { [key: string]: string } => {
+  return Object
+    .entries(table)
+    .reduce((inverted, entry) => {
+      inverted[entry[1]] = entry[0];
+      return inverted;
+    }, {} as {[key: string]: string});
+};
+
+export const createTable = (node: any[] | string, path: string = ''): { [key: string]: string } => {
+  if (typeof node === 'string') {
+    return { [path]: node };
+  }
+  const table = {};
+  node.forEach((leaf, index) => {
+    Object.assign(table, createTable(leaf, `${path}${index}`));
+  });
+  return table;
+}
+
 export const convertTreeToString = (encoding: { [key: string]: string }): string => {
   return Object
     .entries(encoding)
@@ -92,29 +112,18 @@ export const convertToBuffer = (bits: string): Buffer => {
   return encoded;
 };
 
-export const convertToBitArray = (buff: Buffer): number[] => {
-  const xs = [];
+export const convertToBinary = (buff: Buffer): string => {
+  let binary = '';
   for (let i = 0; i < buff.length; ++i) {
     const bits = padStart(buff[i].toString(2).split('')); 
     for (let j = 0; j < bits.length; ++j) {
-      const bit = +bits[j];
-      if (bit === 0 || bit === 1) {
-        xs.push(bit);
+      const bit = bits[j];
+      if (bit === '0' || bit === '1') {
+        binary += bit; 
       }
     }
   }
-  return xs;
-};
-
-const readCode = (bits: number[], encoding: any[]): [number[], string] => {
-  if (bits.length === 0) {
-    return [[], ''];
-  };
-  const [bit, ...rest] = bits;
-  const code = encoding[bit];
-  return typeof code === 'string'
-    ? [rest, code]
-    : readCode(rest, encoding[bit]);
+  return binary;
 };
 
 export const encodeFile = (filepath: string): Buffer => {
@@ -130,12 +139,18 @@ export const decodeFile = (filepath: string): Buffer => {
   const buff = fs.readFileSync(filepath);
   const delimIndex = buff.indexOf(59);
   const encoding = JSON.parse(buff.slice(0, delimIndex).toString('utf8'));
-  let code = convertToBitArray(buff.slice(delimIndex + 1));
-  let result = ''; 
-  while (code.length) {
-    const chunk = readCode(code, encoding);
-    code = chunk[0];
-    result += chunk[1];
+  const table = createTable(encoding);
+  let binary = convertToBinary(buff.slice(delimIndex + 1));
+  let result = '';
+  while (binary.length) {
+    let i = 1;
+    let prefix = binary.substring(0, i);
+    while (table[prefix] === undefined && binary.length > i) {
+      ++i;
+      prefix = binary.substring(0, i);
+    }
+    binary = binary.substring(i);
+    result += table[prefix] === undefined ? '' : table[prefix];
   }
   return Buffer.from(result, 'utf8');
 };

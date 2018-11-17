@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { getCharFrequencies, createTree, invertTree, encode, convertToArray } from './encode';
+import { getCharFrequencies, createTree, invertTree, encode, convertToArray, createTable } from './encode';
 
 describe('test suite', () => {
   it('should have a working test suite', () => {
@@ -58,6 +58,17 @@ describe('convertToArray()', () => {
       },
     };
     expect(convertToArray(tree)).to.eql([['a'],['b','c']]);
+  });
+});
+
+describe('createTable()', () => {
+  it('should create a look up table from a binary tree', () => {
+    const tree = [['a'],['b','c']];
+    expect(createTable(tree)).to.eql({
+      '00': 'a',
+      '10': 'b',
+      '11': 'c',
+    });
   });
 });
 

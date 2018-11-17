@@ -1,7 +1,0 @@
-Huffman Encoding is a way to compress files by leveraging the
-frequency count of the characters and using them to build a
-look up tree. The higher frequency trees are coded with shorter
-paths and the less frequent ones are coded further away. The net
-effect is the file is smaller. The implementation here is not very
-efficient. The encoding process is slow because the code scans the
-tree for each lookup value.
