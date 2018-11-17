@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { getCharFrequencies, createTree, invertTree, encode, convertToArray } from './index';
+import { getCharFrequencies, createTree, invertTree, encode, convertToArray } from './encode';
 
 describe('test suite', () => {
   it('should have a working test suite', () => {

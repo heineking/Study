@@ -60,3 +60,5 @@ export const encode = (str: string): string => {
   const encoded = chars.map((char) => encoding[char]).join('');
   return `${JSON.stringify(convertToArray(tree))};${encoded}`;
 };
+
+export default encode;
