@@ -1,4 +1,5 @@
 // index.ts
+import fs from 'fs';
 
 interface FrequencyTable {
   [key: string]: number;
@@ -52,13 +53,89 @@ export const convertToArray = (node: Node): any[] => {
     }, []);
 };
 
-export const encode = (str: string): string => {
+export const convertTreeToString = (encoding: { [key: string]: string }): string => {
+  return Object
+    .entries(encoding)
+    .reduce((str: string, entry) => {
+      const [ch, code] = entry; 
+      return str += `${ch}:${code},`;
+    }, '');
+};
+
+export const encode = (str: string): [string, string] => {
   const chars = str.split('');
   const freq = getCharFrequencies(str.split(''));
   const tree = createTree(Object.entries(freq));
   const encoding = invertTree(tree);
   const encoded = chars.map((char) => encoding[char]).join('');
-  return `${JSON.stringify(convertToArray(tree))};${encoded}`;
+  return [JSON.stringify(convertToArray(tree)), encoded];
 };
 
-export default encode;
+const padStart = (bits: string[]): string[] => {
+  const zeros = ['0','0','0','0','0','0','0','0'];
+  return zeros.concat(bits).slice(-8);
+};
+
+export const convertToBuffer = (bits: string): Buffer => {
+  const chunks = bits.match(/.{1,8}/g);
+  if (chunks === null) {
+    throw new Error();
+  }
+  const encoded = Buffer.alloc(chunks.length);
+  for (let i = 0; i < chunks.length; ++i) {
+    if (i === chunks.length - 1) {
+      chunks[i] = `${chunks[i]}00000000`.slice(0, 8);
+    }
+    encoded[i] = parseInt(chunks[i], 2);
+  }
+  
+  return encoded;
+};
+
+export const convertToBitArray = (buff: Buffer): number[] => {
+  const xs = [];
+  for (let i = 0; i < buff.length; ++i) {
+    const bits = padStart(buff[i].toString(2).split('')); 
+    for (let j = 0; j < bits.length; ++j) {
+      const bit = +bits[j];
+      if (bit === 0 || bit === 1) {
+        xs.push(bit);
+      }
+    }
+  }
+  return xs;
+};
+
+const readCode = (bits: number[], encoding: any[]): [number[], string] => {
+  if (bits.length === 0) {
+    return [[], ''];
+  };
+  const [bit, ...rest] = bits;
+  const code = encoding[bit];
+  return typeof code === 'string'
+    ? [rest, code]
+    : readCode(rest, encoding[bit]);
+};
+
+export const encodeFile = (filepath: string): Buffer => {
+  const file = fs.readFileSync(filepath, 'utf8');
+  const [encoding, encoded] = encode(file); 
+  return Buffer.concat([
+    Buffer.from(`${encoding};`, 'utf8'),
+    convertToBuffer(encoded),
+  ]);
+};
+
+export const decodeFile = (filepath: string): Buffer => {
+  const buff = fs.readFileSync(filepath);
+  const delimIndex = buff.indexOf(59);
+  const encoding = JSON.parse(buff.slice(0, delimIndex).toString('utf8'));
+  let code = convertToBitArray(buff.slice(delimIndex + 1));
+  let result = ''; 
+  while (code.length) {
+    const chunk = readCode(code, encoding);
+    code = chunk[0];
+    result += chunk[1];
+  }
+  return Buffer.from(result, 'utf8');
+};

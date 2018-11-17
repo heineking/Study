@@ -64,6 +64,6 @@ describe('convertToArray()', () => {
 describe('encode()', () => {
   it('should encode a string', () => {
     const encoded = encode('foo');
-    expect(encoded.split(';')[1]).to.equal('011');
+    expect(encoded[1]).to.equal('011');
   });
 });

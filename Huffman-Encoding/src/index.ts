@@ -1,8 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import encode from './encode';
+import { encodeFile, decodeFile } from './encode';
 
-const sample = fs.readFileSync(path.resolve(__dirname, '../examples/sample.txt'), 'utf8');
-const encoded = encode(sample);
+const filepath = path.resolve(__dirname, '../examples/sample.txt');
+const outpath = path.resolve(__dirname, '../examples/sample.huff');
 
-fs.writeFileSync(path.resolve(__dirname, '../examples/sample.he'), encoded);
+const huff = encodeFile(filepath);
+fs.writeFileSync(outpath, huff);
+
+console.log(decodeFile(outpath).toString('utf8'));
