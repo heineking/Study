@@ -1,0 +1,18 @@
+html
+  head
+    title= title
+  body
+    h1 Reflected XSS
+  p.
+    A reflected XSS attack is the most common kind of XSS attack.
+    All it requires is for the user to click on a malicious
+    link.
+  p.
+    click and observe:
+  a(href="/reflected?term='; alert('xss'); '") attack
+  div
+    h3 Term
+    p(id="term")
+  script.
+      var el = document.getElementById('term');
+      el.innerHTML = '#{term}';

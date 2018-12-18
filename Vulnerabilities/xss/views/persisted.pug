@@ -1,0 +1,27 @@
+html
+  head
+    title= title 
+  body
+    h1 Persisted XSS
+    p 
+      | Persisted XSS originates from the database. The attacker gets the host 
+      | to save the malicious script which is then injected by the host.
+    p
+      | To demonstrate the XSS attack try the following with the unsafe form
+      | below.
+    ul
+      li safe: Barney Rubble
+      li unsafe: Barney'; alert('xss'); '; 
+    div
+      h3 Unsafe Form
+      form(action='/persisted', method='post')
+        label Enter Your Name:&nbsp;
+          input(name='name')
+        button Submit
+    div
+      h3 Your Name:
+      div(id='name')
+
+    script.
+      var el = document.getElementById('name');
+      el.innerHTML = '#{name}';
