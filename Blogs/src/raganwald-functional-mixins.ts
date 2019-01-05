@@ -26,7 +26,9 @@ class Todo {
 
 interface RGB { r: number; g: number; b: number };
 
-const Colored = {
+const functionalMixin = (behavior: object) => (target: object) => Object.assign(target, behavior);
+
+const Colored = functionalMixin({
   setColorRGB({ r, g, b }: RGB) {
     this.colorCode = { r, g, b };
     return this;
@@ -34,9 +36,9 @@ const Colored = {
   getColorRGB(): RGB {
     return this.colorCode;
   },
-};
+});
 
-Object.assign(Todo.prototype, Colored);
+Colored(Todo.prototype);
 
 new Todo('test').setColorRGB({ r: 1, g: 2, b: 3 });
 //=> "{"name":"test","done":false,"colorCode":{"r":1,"g":2,"b":3}}"
