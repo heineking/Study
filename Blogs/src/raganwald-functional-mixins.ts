@@ -33,11 +33,13 @@ const functionalMixin = (behavior: any) => {
   const instanceKeys = Reflect.ownKeys(behavior).filter(key => key !== shared);
   const sharedBehavior = behavior[shared] || {};
   const sharedKeys = Reflect.ownKeys(sharedBehavior);
+  const typeTag = Symbol('isa');
 
-  function mixin (target: object) {
+  function mixin (target: any) {
     for (const property of instanceKeys) {
       Object.defineProperty(target, property, { value: behavior[property] });
-    } 
+    }
+    target[typeTag] = true;
     return target;
   }
   for (const property of sharedKeys) {
@@ -46,6 +48,7 @@ const functionalMixin = (behavior: any) => {
       enumerable: sharedBehavior.propertyIsEnumerable(property),
     });
   }
+  Object.defineProperty(mixin, Symbol.hasInstance, { value: (instance: any) => !!instance[typeTag] });
   return mixin;
 };
 
@@ -73,4 +76,9 @@ new Todo('test').setColorRGB({ r: 1, g: 2, b: 3 });
 
 const urgent = new Todo("finish blog post");
 urgent.setColorRGB(Colored.RED);
-debugger;
+//=> "{"name":"finish blog post","done":false,"colorCode":{"r":255,"g":0,"b":0}}"
+
+const isTodo = urgent instanceof Todo;
+//=> true
+const isColored = urgent instanceof Colored;
+//=> true
