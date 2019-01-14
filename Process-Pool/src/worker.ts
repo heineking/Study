@@ -30,7 +30,7 @@ const state: State = {
 const handlers: any = {
   exec(payload: any): void {
     const { fname, args } = payload;
-    const fn = $module[fname] || $module.default;
+    const fn = $module[fname];
     const result = fn(...args);
     process.send({ type: 'result', payload: result });
   },
@@ -69,7 +69,7 @@ export function createWorker() {
     load(file: string): void {
       worker.send({ type: 'load', payload: file });
     },
-    exec(fname?: string, ...args: any[]): Promise<any> {
+    exec(fname: string, ...args: any[]): Promise<any> {
       return new Promise((resolve, reject) => {
         worker.once('message', (message) => {
           const { type, payload } = message;
