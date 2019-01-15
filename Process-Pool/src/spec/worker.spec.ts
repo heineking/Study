@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { createWorker } from '../worker';
+import { createWorker } from '../worker/worker';
 
 const worker = createWorker();
 
@@ -21,7 +21,7 @@ describe('worker', () => {
   it('should load a file', async () => {
     const result: any = await worker.ping();
     expect(result.file).to.match(/sum\.ts$/);
-    expect(result.api).to.eql(['sum', 'default']);
+    expect(result.api).to.eql(['sum', 'faulty', 'default']);
   }); 
 
   it('should execute function', async () => {
@@ -44,4 +44,12 @@ describe('worker', () => {
     expect(result2).to.equal(6);
     expect(result3).to.equal(10);
   });
+
+  it('should be fault tolerant', async () => {
+    try {
+      await worker.exec('faulty', 'boom');
+    } catch (err) {
+      expect(err).to.equal('Error: boom');
+    }
+  })
 });

@@ -6,4 +6,8 @@ export function sum(n: number): number {
   return j;
 }
 
+export function faulty(message: string): void {
+  throw new Error(message);
+}
+
 export default sum;

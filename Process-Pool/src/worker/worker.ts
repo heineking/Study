@@ -1,13 +1,7 @@
-import { fork } from "child_process";
+import { fork } from 'child_process';
+import { State, Handlers, Message } from './types';
 
 let $module: any = null;
-
-interface State {
-  file?: string;
-  pid: number;
-  loaded: boolean;
-  api: string[];
-}
 
 const state: State = {
   // state
@@ -27,35 +21,26 @@ const state: State = {
   },
 };
 
-const handlers: any = {
-  exec({ args, messageId }: any): void {
+const handlers: Handlers = {
+  async exec({ args }): Promise<any> {
     const [fname, ...rest] = args;
 
-    const result = $module[fname]
+    return $module[fname]
       ? $module[fname](...rest)
       : $module.default(...args);
-
-    process.send({
-      messageId, 
-      type: 'result',
-      payload: result
-    });
   },
-  load(file: string): void {
+  async load(file: string): Promise<void> {
     state.file = file;
     $module = require(file);
   },
-  ping(): void {
-    process.send({
-      type: 'ping',
-      payload: state, 
-    });
+  async ping(): Promise<State> {
+    return state;
   }
 };
 
 export function createWorker() {
   const workerFile = require.resolve('./worker.ts');
-  const tsnode = require.resolve('../node_modules/ts-node/dist/bin.js');
+  const tsnode = require.resolve('../../node_modules/ts-node/dist/bin.js');
   const worker = fork(workerFile, [], { execArgv: [tsnode] });
   let uid = 0; 
   return {
@@ -63,14 +48,13 @@ export function createWorker() {
       worker.kill();
     },
     ping(): Promise<State> {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         worker.addListener('message', function handler(message) {
           const { type, payload } = message;
           if (type === 'ping') {
             worker.removeListener('message', handler);
             return resolve(payload);
           }
-          return reject(`unexpected message of type: ${type}`);
         });
         worker.send({ type: 'ping' });
       });
@@ -81,20 +65,21 @@ export function createWorker() {
     exec(...args: any[]): Promise<any> {
       const messageId = ++uid;
       return new Promise((resolve, reject) => {
-        worker.addListener('message', function handler(message) {
-          const { type, payload } = message;
-          if (messageId !== message.messageId) {
+        worker.addListener('message', function handler(message: Message) {
+          const { status, type, payload } = message;
+          if (type !== 'exec' || messageId !== message.messageId) {
             return;
           }
-          if (type === 'result') {
-            worker.removeListener('message', handler);
+          worker.removeListener('message', handler);
+          if (status === 'ok') {
             return resolve(payload);
           }
+          return reject(payload);
         });
         worker.send({
+          messageId,
           type: 'exec',
           payload: {
-            messageId,
             args,
           },
         });
@@ -103,15 +88,21 @@ export function createWorker() {
   };
 }
 
-process.on('message', (message) => {
+process.on('message', async (message: Message) => {
   const { type, payload } = message;
   const handler = handlers[type];
-  if (handler) {
-    handler(payload);
-  } else {
+  try {
+    const result = await handler(payload);
     process.send({
-      type: 'error',
-      payload: `[${type}] does not map to a valid handler.`,
+      ...message,
+      status: 'ok',
+      payload: result,
+    });
+  } catch (err) {
+    process.send({
+      ...message,
+      status: 'error',
+      payload: err.toString(),
     });
   }
 });
