@@ -1,53 +1,51 @@
-import { fork } from 'child_process';
-import { State, Message } from './types';
+import { fork, ChildProcess } from 'child_process';
+import { Message, Handlers } from './types';
+
+const bindHandlers = (worker: ChildProcess) => {
+  const handlers: Array<keyof Handlers> = [
+    'exec',
+    'load',
+    'ping',
+  ];
+  const proxy = Object.create(null);
+  for(const handler of handlers) {
+    proxy[handler] = function handle(...args: any[]) {
+      const id = ++proxy[handler].uid;
+      return new Promise((resolve, reject) => {
+        // set up the receiver
+        worker.addListener('message', function messageHandler(message: Message) {
+          const { type, status, payload, messageId } = message;
+          if (type !== handler || id !== messageId) {
+            return;
+          }
+          worker.removeListener('message', messageHandler);
+          if (status === 'error') {
+            return reject(payload);
+          }
+          return resolve(payload);
+        });
+        // invoke
+        worker.send({
+          messageId: id,
+          type: handler,
+          payload: { args },
+        });
+      });
+    };
+    proxy[handler].uid = 0;
+  }
+  return proxy;
+};
 
 export function createWorker() {
   const workerFile = require.resolve('./worker.ts');
   const tsnode = require.resolve('../../node_modules/ts-node/dist/bin.js');
   const worker = fork(workerFile, [], { execArgv: [tsnode] });
-  let uid = 0; 
-
+  const handlers = bindHandlers(worker);
   return {
     kill() {
       worker.kill();
     },
-    ping(): Promise<State> {
-      return new Promise((resolve) => {
-        worker.addListener('message', function handler(message) {
-          const { type, payload } = message;
-          if (type === 'ping') {
-            worker.removeListener('message', handler);
-            return resolve(payload);
-          }
-        });
-        worker.send({ type: 'ping' });
-      });
-    },
-    load(file: string): void {
-      worker.send({ type: 'load', payload: file });
-    },
-    exec(...args: any[]): Promise<any> {
-      const messageId = ++uid;
-      return new Promise((resolve, reject) => {
-        worker.addListener('message', function handler(message: Message) {
-          const { status, type, payload } = message;
-          if (type !== 'exec' || messageId !== message.messageId) {
-            return;
-          }
-          worker.removeListener('message', handler);
-          if (status === 'ok') {
-            return resolve(payload);
-          }
-          return reject(payload);
-        });
-        worker.send({
-          messageId,
-          type: 'exec',
-          payload: {
-            args,
-          },
-        });
-      });
-    },
+    ...handlers,
   };
 }

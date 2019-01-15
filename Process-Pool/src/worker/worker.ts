@@ -1,4 +1,3 @@
-import { fork } from 'child_process';
 import { State, Handlers, Message } from './types';
 
 let $module: any = null;
@@ -29,13 +28,13 @@ const handlers: Handlers = {
       ? $module[fname](...rest)
       : $module.default(...args);
   },
-  async load(file: string): Promise<void> {
-    state.file = file;
-    $module = require(file);
+  async load({ args }): Promise<void> {
+    state.file = args[0]; 
+    $module = require(state.file);
   },
   async ping(): Promise<State> {
     return state;
-  }
+  },
 };
 
 process.on('message', async (message: Message) => {

@@ -5,8 +5,8 @@ const worker = createWorker();
 
 describe('worker', () => {
 
-  before(() => {
-    worker.load(require.resolve('./sum.ts'));
+  before(async () => {
+    await worker.load(require.resolve('./sum.ts'));
   });
 
   after(() => {
@@ -51,5 +51,5 @@ describe('worker', () => {
     } catch (err) {
       expect(err).to.equal('Error: boom');
     }
-  })
+  });
 });
