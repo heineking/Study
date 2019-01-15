@@ -16,7 +16,9 @@ const state: State = {
     if (!this.loaded) {
       return [];
     }
-    return Object.keys($module);
+    return Object
+      .keys($module)
+      .filter((key: string) => typeof $module[key] === 'function');
   },
 };
 
