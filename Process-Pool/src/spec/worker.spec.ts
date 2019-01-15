@@ -20,9 +20,14 @@ describe('worker', () => {
 
   it('should load a file', async () => {
     const result: any = await worker.ping();
+    expect(result.loaded).to.equal(true);
     expect(result.file).to.match(/sum\.ts$/);
-    expect(result.api).to.eql(['sum', 'faulty', 'default']);
   }); 
+
+  it('should maintain a list of functions exported', async () => {
+    const result: any = await worker.ping();
+    expect(result.api).to.eql(['sum', 'faulty', 'default']);
+  });
 
   it('should execute function', async () => {
     const result = await worker.exec('sum', 3 /* 1 + 2 + 3 */);
