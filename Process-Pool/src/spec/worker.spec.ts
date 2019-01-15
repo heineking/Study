@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { createWorker } from '../worker/worker';
+import { createWorker } from '../worker';
 
 const worker = createWorker();
 
