@@ -28,11 +28,18 @@ const state: State = {
 };
 
 const handlers: any = {
-  exec(payload: any): void {
-    const { fname, args } = payload;
-    const fn = $module[fname];
-    const result = fn(...args);
-    process.send({ type: 'result', payload: result });
+  exec({ args, messageId }: any): void {
+    const [fname, ...rest] = args;
+
+    const result = $module[fname]
+      ? $module[fname](...rest)
+      : $module.default(...args);
+
+    process.send({
+      messageId, 
+      type: 'result',
+      payload: result
+    });
   },
   load(file: string): void {
     state.file = file;
@@ -50,15 +57,17 @@ export function createWorker() {
   const workerFile = require.resolve('./worker.ts');
   const tsnode = require.resolve('../node_modules/ts-node/dist/bin.js');
   const worker = fork(workerFile, [], { execArgv: [tsnode] });
+  let uid = 0; 
   return {
     kill() {
       worker.kill();
     },
     ping(): Promise<State> {
       return new Promise((resolve, reject) => {
-        worker.once('message', (message) => {
+        worker.addListener('message', function handler(message) {
           const { type, payload } = message;
           if (type === 'ping') {
+            worker.removeListener('message', handler);
             return resolve(payload);
           }
           return reject(`unexpected message of type: ${type}`);
@@ -69,16 +78,26 @@ export function createWorker() {
     load(file: string): void {
       worker.send({ type: 'load', payload: file });
     },
-    exec(fname: string, ...args: any[]): Promise<any> {
+    exec(...args: any[]): Promise<any> {
+      const messageId = ++uid;
       return new Promise((resolve, reject) => {
-        worker.once('message', (message) => {
+        worker.addListener('message', function handler(message) {
           const { type, payload } = message;
+          if (messageId !== message.messageId) {
+            return;
+          }
           if (type === 'result') {
+            worker.removeListener('message', handler);
             return resolve(payload);
           }
-          return reject();
         });
-        worker.send({ type: 'exec', payload: { fname, args } });
+        worker.send({
+          type: 'exec',
+          payload: {
+            messageId,
+            args,
+          },
+        });
       });
     },
   };
@@ -89,5 +108,10 @@ process.on('message', (message) => {
   const handler = handlers[type];
   if (handler) {
     handler(payload);
+  } else {
+    process.send({
+      type: 'error',
+      payload: `[${type}] does not map to a valid handler.`,
+    });
   }
 });

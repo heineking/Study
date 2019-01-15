@@ -5,6 +5,10 @@ const worker = createWorker();
 
 describe('worker', () => {
 
+  before(() => {
+    worker.load(require.resolve('./sum.ts'));
+  });
+
   after(() => {
     worker.kill();
   });
@@ -15,17 +19,29 @@ describe('worker', () => {
   });
 
   it('should load a file', async () => {
-    const sum = require.resolve('./sum.ts');
-    worker.load(sum);
     const result: any = await worker.ping();
-    expect(result.file).to.equal(sum);
-    expect(result.api).to.eql(['default']);
+    expect(result.file).to.match(/sum\.ts$/);
+    expect(result.api).to.eql(['sum', 'default']);
+  }); 
+
+  it('should execute function', async () => {
+    const result = await worker.exec('sum', 3 /* 1 + 2 + 3 */);
+    expect(result).to.equal(6);
   });
 
-  it('should execute module', async () => {
-    const sum = require.resolve('./sum.ts');
-    worker.load(sum);
-    const result = await worker.exec('default', 3 /* 1 + 2 + 3 */);
+  it('should execute default if fname is not specified', async () => {
+    const result = await worker.exec(3);
     expect(result).to.equal(6);
+  });
+
+  it('should handle multiple calls', async () => {
+    const tasks = Promise.all([worker.exec(2), worker.exec(3)]);
+
+    const result3 = await worker.exec(4);
+    const [result1, result2] = await tasks;
+
+    expect(result1).to.equal(3);
+    expect(result2).to.equal(6);
+    expect(result3).to.equal(10);
   });
 });
