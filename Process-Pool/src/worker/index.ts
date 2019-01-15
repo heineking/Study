@@ -6,6 +6,7 @@ const bindHandlers = (worker: ChildProcess) => {
     'exec',
     'load',
     'ping',
+    'exit',
   ];
   const proxy = Object.create(null);
   for(const handler of handlers) {
@@ -41,11 +42,5 @@ export function createWorker() {
   const workerFile = require.resolve('./worker.ts');
   const tsnode = require.resolve('../../node_modules/ts-node/dist/bin.js');
   const worker = fork(workerFile, [], { execArgv: [tsnode] });
-  const handlers = bindHandlers(worker);
-  return {
-    kill() {
-      worker.kill();
-    },
-    ...handlers,
-  };
+  return bindHandlers(worker);
 }

@@ -10,7 +10,7 @@ describe('worker', () => {
   });
 
   after(() => {
-    worker.kill();
+    worker.exit(0);
   });
 
   it('should spin up in a new ts-node process', async () => {

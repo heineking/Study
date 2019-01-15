@@ -25,10 +25,12 @@ const state: State = {
 const handlers: Handlers = {
   async exec({ args }): Promise<any> {
     const [fname, ...rest] = args;
-
     return $module[fname]
       ? $module[fname](...rest)
       : $module.default(...args);
+  },
+  async exit({ args: [code] }): Promise<void> {
+    process.exit(code);
   },
   async load({ args }): Promise<void> {
     state.file = args[0]; 
