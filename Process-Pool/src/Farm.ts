@@ -1,6 +1,14 @@
 import { Handlers } from "./worker/types";
 import { createWorker } from "./worker";
 
+interface FarmOptions {
+  maxPool: number;
+}
+
+const defaultFarmOptions: FarmOptions = {
+  maxPool: 4,
+};
+
 async function bindFunctions(worker: Handlers): Promise<any> {
   const { api } = await worker.ping();
 
@@ -18,29 +26,49 @@ async function bindFunctions(worker: Handlers): Promise<any> {
 }
 
 export default class Farm {
-  private max: number;
-  private pool: Handlers[] = [];
-  private idle: Handlers[] = [];
-  private waiting: Array<{ reject: any, resolve: any }> = [];
+  private options: FarmOptions;
   private file: string;
+  private pool: Handlers[] = [];
 
-  public constructor(file: string) {
-    this.max = 4;
+  private idle: any[] = [];
+  private waiting: Array<{ resolve: Function, reject: Function }> = [];
+
+
+  public constructor(file: string, options: FarmOptions = defaultFarmOptions) {
+    this.options = options;
     this.file = file;
   }
 
   public async acquire(): Promise<any> {
-    return bindFunctions(await this.create());
+    if (this.idle.length > 0) {
+      return this.idle.shift();
+    }
+    if (this.pool.length < this.options.maxPool) {
+      await this.create();
+      return this.idle.shift();
+    }
+    return new Promise((resolve, reject) => {
+      this.waiting.push({ resolve, reject });
+    });
   }
 
-  public async end(): Promise<void> {
-    this.pool.forEach((worker) => worker.exit(0));
+  public release(proxied: any): void {
+    const next = this.waiting.shift();
+    if (next) {
+      next.resolve(proxied);
+    } else {
+      this.idle.push(proxied);
+    }
   }
 
-  private async create(): Promise<Handlers> {
+  public async end(code: number = 0): Promise<void> {
+    this.pool.forEach((worker) => worker.exit(code));
+  }
+
+  private async create(): Promise<void> {
     const worker = createWorker();
     this.pool.push(worker);
     await worker.load(this.file);
-    return worker;
+    this.idle.push(await bindFunctions(worker));
   }
 }
