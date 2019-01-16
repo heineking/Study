@@ -26,7 +26,7 @@ describe('worker', () => {
 
   it('should maintain a list of functions exported', async () => {
     const result: any = await worker.ping();
-    expect(result.api).to.eql(['sum', 'faulty', 'default']);
+    expect(result.api).to.eql(['sum', 'add2', 'faulty', 'default']);
   });
 
   it('should execute function', async () => {

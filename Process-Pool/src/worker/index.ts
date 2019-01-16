@@ -38,7 +38,7 @@ const bindHandlers = (worker: ChildProcess) => {
   return proxy;
 };
 
-export function createWorker() {
+export function createWorker(): Handlers {
   const workerFile = require.resolve('./worker.ts');
   const tsnode = require.resolve('../../node_modules/ts-node/dist/bin.js');
   const worker = fork(workerFile, [], { execArgv: [tsnode] });

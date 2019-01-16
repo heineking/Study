@@ -8,6 +8,10 @@ export function sum(n: number): number {
   return j;
 }
 
+export function add2(a: number, b: number): number {
+  return a + b;
+}
+
 export function faulty(message: string): void {
   throw new Error(message);
 }
