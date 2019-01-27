@@ -1,11 +1,22 @@
-interface Store { getState: () => any };
+interface Store {
+  getState: () => any,
+  register(step: any): (() => void),
+};
 
-const state = { message: 'Hello, Word' };
+const state: any = {
+  steps: [],
+};
 
 const store: Store = {
   getState() {
     return state;
   },
+  register(step: any) {
+    state.steps.push(step);
+    return () => {
+      state.steps.splice(state.steps.indexOf(step), 1);
+    };
+  }
 };
 
 const noop = () => {};
@@ -42,6 +53,7 @@ first(store)(second(store));
     }
 
     handle: any = (store: Store) => (next: any = noop) => (action: any) => {
+      console.log(store.getState());
       if (action.type === 'activate' && this.valid) {
         return next(action);
       }
@@ -68,6 +80,8 @@ first(store)(second(store));
     })(action);
   };
 
+  run({ type: 'activate' }, step1, step2);
+  state.xs.splice(1, 1);
   step1.valid = true;
   run({ type: 'activate' }, step1, step2);
 }
