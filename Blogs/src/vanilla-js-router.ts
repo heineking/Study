@@ -27,7 +27,6 @@ const getKeys = (route: string): string[] => {
 };
 
 const getPattern = (route: string): string => {
-  route = route.endsWith('/') ? route : `${route}/`;
   const pattern = route
     .split('/')
     .map(part => isParam(part) ? '([^/]*)' : part)
@@ -35,18 +34,14 @@ const getPattern = (route: string): string => {
   return `^${pattern}$`;
 };
 
-interface RouteData {
-  route: string,
-  url: string,
-  params: string[];
+interface UrlData {
+  search: { [key: string]: string };
+  params: { [key: string]: string };
 }
 
-const parseUrl = (route: string, url: string): {[key: string]: string} | null => {
+const parseUrl = (route: string, url: string): UrlData | null => {
   const queryString = parseQueryString(url);
-
-  let path = url.replace(`?${queryString}`, '');
-  path = path.endsWith('/') ? path : `${path}/`;
-
+  const path = url.replace(`?${queryString}`, '');
   const pattern = new RegExp(getPattern(route));
   const matches = pattern.exec(path);
 
@@ -54,34 +49,49 @@ const parseUrl = (route: string, url: string): {[key: string]: string} | null =>
     return null;
   }
 
-  const queryParams = getQueryParams(queryString);
-  const routeParams = getKeys(route).reduce((params: any, key, index) => ({
+  const search = getQueryParams(queryString);
+  const params = getKeys(route).reduce((params: any, key, index) => ({
       ...params,
       [key]: matches[index + 1],
     }), Object.create(null));
 
   return {
-    ...routeParams,
-    ...queryParams,
+    params,
+    search,
   };
 };
+
+interface Routes {
+  [route: string]: (req: any, res: any) => void;
+}
+
+const navigate = (routes: Routes) => (url: string): void => {
+  let [path, query] = url.split('?');
+  path = path.endsWith('/') ? path : `${path}/`;
+  url = `${path}${query ? `?${query}` : ''}`;
+  for (let [route, execute] of Object.entries(routes)) {
+    route = route.endsWith('/') ? route : `${route}/`;
+    const { params, search } = parseUrl(route, url);
+    if (params) {
+      return execute({ params, search }, {});
+    }
+  }
+}
 
 /*******************************************************************************
   == Test Suite ==
 */
-// First create a little TDD framework,
-// src: https://medium.com/javascript-scene/tdd-the-rite-way-53c9b46f45e3
 
 test('parseQueryString', (assert) => {
   {
     const msg = `should return '' if no query string is present`;
-    const actual = parseQueryString('http://foobar.com');
+    const actual = parseQueryString('/hello/world/');
     const expected = '';
     assert.equal(actual, expected, msg);
   }
   {
     const msg = `should return query string when present`;
-    const actual = parseQueryString('http://foobar.com?hello=world');
+    const actual = parseQueryString('/hello/world/?hello=world');
     const expected = 'hello=world';
     assert.equal(actual, expected, msg);
   }
@@ -116,7 +126,7 @@ test('getKeys', assert => {
     assert.same(actual, expected, msg);
   }
   {
-    const msg = `should return keys ['hello'] when passed "/:hello"`;
+    const msg = `should return keys ['hello'] when passed "/:hello/"`;
     const actual = getKeys('/:hello');
     const expected = ['hello'];
     assert.same(actual, expected, msg);
@@ -131,8 +141,8 @@ test('getPattern', assert => {
     assert.same(actual, expected, msg);
   }
   {
-    const msg = `should return "^/([^/]*)/world/$" when passed "/:hello/world"`;
-    const actual = getPattern('/:hello/world');
+    const msg = `should return "^/([^/]*)/world/$" when passed "/:hello/world/"`;
+    const actual = getPattern('/:hello/world/');
     const expected = '^/([^/]*/world/$';
     assert.same(actual, expected, msg);
   }
@@ -147,21 +157,67 @@ test('parseUrl', assert => {
   }
   {
     const msg = `should return { foo: 'bar' } when passed url = "/hello/bar/" and route = "/hello/:foo/`;
-    const actual = parseUrl('/hello/:foo/', '/hello/bar/');
-    const expected = { foo: 'bar' };
-    assert.same(actual, expected, msg);
+    const { params } = parseUrl('/hello/:foo/', '/hello/bar/');
+    assert.same(params, { foo: 'bar' }, msg);
   }
   {
-    const msg = `should return { foo: 'bar', bah: 'baz' } when passed url = "/hello/bar?bah=baz" and route = "/hello/:foo`;
-    const actual = parseUrl('/hello/:foo', '/hello/bar?bah=baz');
-    const expected = { foo: 'bar', bah: 'baz' };
-    assert.same(actual, expected, msg);
+    const msg = `should return { params: { foo: 'bar' }, search: { bah: 'baz' } } when passed url = "/hello/bar/?bah=baz" and route = "/hello/:foo`;
+    const { params, search } = parseUrl('/hello/:foo/', '/hello/bar/?bah=baz');
+    assert.same(params, { foo: 'bar'}, `params: ${msg}`);
+    assert.same(search, { bah: 'baz' },`search: ${msg}`);
+  }
+  {
+    const msg = `should return {} when passed url = "/hello/world/" and route = /hello/world/`;
+    const { params, search } = parseUrl('/hello/world/', '/hello/world/');
+    const expected = {};
+    assert.same(params, expected, msg);
+    assert.same(search, expected, msg);
+  }
+});
+
+test('navigate', assert => {
+  {
+    let executed = false;
+    const routes: Routes = {
+      ['/foo'](req: any): void {
+        executed = true;
+      },
+    };
+    const navigator = navigate(routes);
+    navigator('/foo');
+
+    const msg = `should execute matching route`;
+    const actual = executed;
+    const expected = true;
+
+    assert.equal(actual, expected, msg);
+  }
+  {
+    const routes: Routes = {
+      ['/:foo'](req: any): void {
+        const msg = `should bind 'foo: abc' to params object when '/:foo' is matched with '/abc'`;
+        assert.equal(req.params.foo, 'abc', msg);
+      },
+    };
+    const navigator = navigate(routes);
+    navigator('/abc');
+  }
+  {
+    const routes: Routes = {
+      ['/:foo'](req: any): void {
+        const msg = `should bind 'bah: baz' as search param when '/:foo' is matched with '/abc?bah=baz`;
+        assert.equal(req.search.bah, 'baz', msg);
+      }
+    }
+    navigate(routes)('/abc?bah=baz');
   }
 });
 
 /*******************************************************************************
   == Test Framework ==
 */
+// First create a little TDD framework,
+// src: https://medium.com/javascript-scene/tdd-the-rite-way-53c9b46f45e3
 
 interface TestFramework {
   equal<T>(actual: T, expected: T, msg: string): void;
