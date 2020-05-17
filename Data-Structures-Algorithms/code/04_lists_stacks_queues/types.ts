@@ -20,3 +20,12 @@ export interface Stack<T> {
   peek(): T;
   toArray(): T[];
 }
+
+export interface Queue<T> {
+  readonly count: number;
+  clear(): void;
+  enqueue(item: T): void;
+  dequeue(): T;
+  peek(): T;
+  toArray(): T[];
+}

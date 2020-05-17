@@ -4,7 +4,7 @@
   "description": "",
   "main": "",
   "scripts": {
-  "test": "npx mocha --require ts-node/register --recursive \"code/**/*.spec.ts\""
+    "test": "npx mocha --require ts-node/register --recursive \"code/**/*.spec.ts\""
   },
   "repository": {
     "type": "git",

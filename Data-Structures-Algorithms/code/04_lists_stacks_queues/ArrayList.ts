@@ -3,7 +3,7 @@ import { arrayToObject } from './utils';
 
 export default class ArrayList<T> implements List<T> {
   public static Of<R>(xs: R[] = []): List<R> {
-    return new ArrayList(xs);
+    return new ArrayList<R>(xs);
   }
 
   private xs: { [index: number]: T };
