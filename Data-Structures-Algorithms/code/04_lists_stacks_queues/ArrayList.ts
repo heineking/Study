@@ -63,7 +63,7 @@ export default class ArrayList<T> implements List<T> {
     const value = this.xs[index];
 
     this.at(index).remove();
-    this.at(originalPos);
+    this.pos = originalPos;
 
     return value;
   }

@@ -29,3 +29,23 @@ export interface Queue<T> {
   peek(): T;
   toArray(): T[];
 }
+
+export interface Dictionary<K, T> {
+  readonly size: number;
+  insert(key: K, item: T): void;
+  find(key: K): T;
+  remove(key: K): T;
+  removeAny(): T;
+  toArray(): Array<[K, T]>;
+}
+
+export interface KeyValuePair<K, T> {
+  readonly key: K;
+  readonly value: T;
+}
+
+export interface KeyCompare<T> {
+  lt(x: T, y: T): boolean;
+  eq(x: T, y: T): boolean;
+  gt(x: T, y: T): boolean;
+}
