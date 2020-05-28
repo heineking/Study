@@ -1,111 +1,96 @@
-import { List } from './types';
-import { arrayToObject } from './utils';
+import { List } from "./types";
 
-export default class ArrayList<T> implements List<T> {
-  public static Of<R>(xs: R[] = []): List<R> {
-    return new ArrayList<R>(xs);
-  }
+interface Values<T> { [index: number]: T }
+interface XS<T> { values: Values<T>; pos: number; length: number; }
 
-  private xs: { [index: number]: T };
-  private length: number;
-  private pos: number; 
+const empty = <T>(): XS<T> => ({ values: [], pos: 0, length: 0 });
 
-  private constructor(xs: T[]) {
-    this.xs = arrayToObject(xs);
-    this.pos = 0;
-    this.length = xs.length;
-  }
+const range = (s: number, n: number) => Array.from({ length: n }).map((_, i) => i + s);
 
-  get count(): number {
-    return this.length;
-  }
+export const ArrayList = <T>(xs: XS<T> = empty<T>()): List<T> => ({
+  at: (index: number) => ArrayList<T>({
+    ...xs,
+    pos: index,
+  }),
 
-  public at(index: number): List<T> {
-    if (index < 0 || index >= this.length) {
-      throw new RangeError('index out of bounds');
-    }
+  length: () => xs.length,
 
-    this.pos = index;
-    return this;
-  }
+  clear: () => ArrayList<T>(empty<T>()),
 
-  public get(index: number = this.pos): T {
-    this.at(index);
-    return this.xs[this.pos];
-  }
+  reset: () => ArrayList({
+    ...xs,
+    pos: 0,
+  }),
 
-  public set(index: number, value: T): List<T> {
-    this.at(index);
-    this.xs[this.pos] = value;
-    return this;
-  }
+  insert: (item: T) => {
 
-  public clear(): void {
-    Object.assign(this, {
-      xs: Object.create(null),
-      length: 0,
-      pos: 0,
+    const values = range(0, xs.length).reduce((values, i) => {
+      const j = i + i < xs.pos ? 0 : 1;
+      return {
+        ...values,
+        [j]: xs.values[i],
+      }
+    }, {});
+
+    return ArrayList<T>({
+      pos: xs.pos,
+      length: xs.length + 1,
+      values: Object.assign(values, { [xs.pos]: item }),
     });
-  }
+  },
 
-  public push(item: T): void {
-    this.xs[this.length] = item;
-    this.length += 1;
-  }
+  append: (item: T) => ArrayList<T>({
+    pos: xs.pos,
+    length: xs.length + 1,
+    values: {
+      ...xs.values,
+      [xs.length]: item,
+    },
+  }),
 
-  public pop(): T | undefined {
-    if (this.length === 0) {
-      return;
+  remove: () => {
+    const item = xs.values[xs.pos];
+
+    const values = range(0, xs.length).reduce((values, i) => {
+      if (i === xs.pos) {
+        return values;
+      }
+      const j = i + (i > xs.pos ? -1 : 0);
+      return {
+        ...values,
+        [j]: xs.values[i],
+      };
+    }, {});
+
+    const next = ArrayList<T>({
+      pos: xs.pos,
+      length: xs.length - 1,
+      values,
+    });
+
+    return [item, next];
+  },
+
+  next: () => {
+    if (xs.pos >= xs.length) {
+      return null;
     }
 
-    const originalPos = this.pos;
-    const index = this.length - 1;
-    const value = this.xs[index];
+    const value = xs.values[xs.pos + 1];
+    const ys = ArrayList<T>({ ...xs, pos: xs.pos + 1 });
 
-    this.at(index).remove();
-    this.pos = originalPos;
+    return [value, ys];
+  },
 
-    return value;
-  }
+  set: (item: T) => ArrayList<T>({
+    ...xs,
+    values: {
+      ...xs.values,
+      [xs.pos]: item,
+    } 
+  }),
 
-  public insert(item: T): List<T> {
-    for (let i = this.length; i > this.pos; i -= 1) {
-      this.xs[i] = this.xs[i - 1];
-    }
-    this.xs[this.pos] = item;
-    this.length += 1;
+  value: () => xs.values[xs.pos],
 
-    return this;
-  }
-
-  public remove(): List<T> {
-    if (this.count === 0) {
-      return this;
-    }
-
-    for (let i = this.pos; i < this.length - 1; ++i) {
-      this.xs[i] = this.xs[i + 1];
-    }
-
-    delete this.xs[this.length];
-    this.length -= 1;
-
-    return this;
-  }
-
-  public toArray(): T[] {
-    const ys: T[] = [];
-    for (let i = 0; i < this.length; ++i) {
-      ys[i] = this.xs[i];
-    }
-    return ys;
-  }
-
-  public toString(): string {
-    return JSON.stringify({
-      xs: this.xs,
-      length: this.length,
-      pos: this.pos,
-    }, null, 2);
-  }
-}
+  toArray: () => range(0, xs.length).map((i) => xs.values[i]),
+});

@@ -1,129 +1,115 @@
 import { expect } from 'chai';
-import ArrayList from './ArrayList';
-import LinkedList from './LinkedList';
+import { ArrayList } from './ArrayList';
+import { LinkedList } from './LinkedList';
 
-const Lists = [ArrayList, LinkedList];
+describe('LinkedList', () => {
 
-Lists.forEach((List) => {
-
-  describe('List', () => {
-
-    it('should initialize with empty array', () => {
-      const list = List.Of<number>();
-      expect(list.toArray()).to.eql([]);
+  it('should initialize as empty', () => {
+    const list = LinkedList<number>();
+    expect(list.toArray()).to.eql([]);
+  });
+  
+  describe('#insert', () => {
+    
+    it('should insert item', () => {
+      let list = LinkedList<number>();
+      list = list.insert(0);
+      expect(list.toArray()).to.eql([0]);
     });
 
-    it('should initialize with passed in values', () => {
-      const list = List.Of<number>([0, 1, 2]);
-      expect(list.toArray()).to.eql([0, 1, 2]);
+    it('should shift items', () => {
+      let list = LinkedList<number>();
+      list = list.insert(0).insert(1);
+      expect(list.toArray()).to.eql([1, 0]);
     });
 
-    describe('#clear', () => {
+  });
 
-      it('should empty the list', () => {
-        const list = List.Of<number>([0, 1, 2]);
-        list.clear();
-        expect(list.toArray()).to.eql([]);
-      });
+  describe('#append', () => {
 
+    it('should add item to end of list', () => {
+      let list = LinkedList<number>();
+      list = list.append(0).append(1);
+      expect(list.toArray()).to.eql([0, 1]);
     });
 
-    describe('#at', () => {
-      
-      it('should throw an error when index is out of bounds', () => {
-        const list = List.Of<number>();
-        expect(() => list.at(1)).to.throw(RangeError);
-      });
-    })
+  });
 
-    describe('#get', () => {
+  describe('#remove', () => {
 
-      it('should return value at index', () => {
-        const list = List.Of<number>([0,1,2]);
-        expect(list.get(2)).to.equal(2);
-      });
-
-      it('should throw an error when trying to get value outside of range', () => {
-        const list = List.Of<number>([0]);
-        expect(() => list.get(1)).to.throw(RangeError);
-      });
-
-    })
-
-    describe('#set', () => {
-
-      it('should set value at index', () => {
-        const list = List.Of<number>([0]);
-        const value = list.set(0, 1).get(0);
-        expect(value).to.equal(1);
-      });
-
-      it('should throw error when trying to set value out of bounds', () => {
-        const list = List.Of<number>([]);
-        expect(() => list.set(0, 0)).to.throw(RangeError);
-      })
+    it('should remove item from list', () => {
+      let list = LinkedList<number>();
+      list = list.append(0).append(1);
+      let item!: number;
+      [item, list] = list.remove();
+      expect(list.toArray()).to.eql([1]);
+      expect(item).to.eql(0);
     });
 
-    describe('#push', () => {
+  });
 
-      it('should add item to end of list', () => {
-        const list = List.Of<number>();
-        list.push(0)
-        expect(list.toArray()).to.eql([0]);
-      });
+  describe('#set', () => {
 
+    it('should set item at index', () => {
+      let list = LinkedList<number>().append(0);
+      list = list.at(0).set(1);
+      expect(list.toArray()).to.eql([1]);
     });
 
-    describe('#pop', () => {
-      it('should remove item at end of list', () => {
-        const list = List.Of<number>([0, 1, 2]);
-        const value = list.pop();
-        expect(list.toArray()).to.eql([0, 1]);
-        expect(value).to.equal(2);
-      });
+    it('should set item at arbitrary index', () => {
+      let list = LinkedList<number>().append(0).append(1).append(2);
+      list = list.at(1).set(10);
+      expect(list.toArray()).to.eql([0, 10, 2]);
+    });
+  });
+});
 
-      it ('should return undefined when the list is empty', () => {
-        const list = List.Of<number>([]);
-        const value = list.pop();
-        expect(value).to.be.undefined;
-      });
+
+describe('ArrayList', () => {
+
+  describe('#insert', () => {
+
+    it('should insert item', () => {
+      let xs = ArrayList<number>();
+      xs = xs.insert(0);
+      expect(xs.toArray()).to.eql([0]);
     });
 
-    describe('#insert', () => {
+    it('should shift items', () => {
+      let xs = ArrayList<number>();
+      xs = xs.insert(0).insert(1);
+      expect(xs.toArray()).to.eql([1, 0]);
+    });
+  });
 
-      it('should insert item at current position', () => {
-        const list = List.Of<number>();
-        list.insert(1);
-        expect(list.toArray()).to.eql([1]);
-      });
+  describe('#append', () => {
 
-      it('should insert item at current position and shift values', () => {
-        const list = List.Of<number>([0,1,2]);
-        list.at(1).insert(3);
-        expect(list.toArray()).to.eql([0, 3, 1, 2]);
-      });
-
+    it('should add items to end of array', () => {
+      let xs = ArrayList<number>();
+      xs = xs.append(0).append(1);
+      expect(xs.toArray()).to.eql([0, 1]);
     });
 
-    describe('#remove', () => {
+  });
 
-      it('should noop when removing on empty list', () => {
-        const list = List.Of<number>();
-        list.remove();
-        expect(list.count).to.equal(0);
-      });
+  describe('#remove', () => {
 
-      it('should remove item at current position', () => {
-        const list = List.Of<number>([0]);
-        list.remove();
-        expect(list.toArray()).to.eql([]);
-      });
+    it('should remove item', () => {
+      let xs = ArrayList<number>().append(0).append(1);
+      let item!: number;
+      [item, xs] = xs.remove();
+      expect(item).to.equal(0);
+      expect(xs.toArray()).to.eql([1]);
+    });
 
-      it('should remove item at current position and shift values', () => {
-        const list = List.Of<number>([0, 1, 2]);
-        list.at(1).remove();
-        expect(list.toArray()).to.eql([0, 2]);
-      });
+  });
+
+  describe('#value', () => {
+
+    it('should return item at current position', () => {
+      const xs = ArrayList<number>().append(0).append(1);
+      const item = xs.value();
+      expect(item).to.equal(0);
     });
 
   });

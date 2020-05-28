@@ -1,148 +1,113 @@
 import { List } from './types';
-import { timingSafeEqual } from 'crypto';
 
-class Link<T> {
-  public static Of<R>(value: R | null = null, prev: Link<R> | null = null, next: Link<R> | null = null): Link<R> {
-    return new Link<R>(value, prev, next);
-  }
+interface Link<T> { value: T; prev: Link<T>; next: Link<T>; }
+interface XS<T> { head: Link<T>; tail: Link<T>; curr: Link<T>; length: number; }
 
-  public value: T;
-  public prev: Link<T>;
-  public next: Link<T>;
+const createLink = <T>(value: T | null, prev: Link<T> | null, next: Link<T> | null): Link<T> => ({
+  value,
+  prev,
+  next
+});
 
-  private constructor(value: T | null, prev: Link<T> | null, next: Link<T> | null) {
-    this.value = value;
-    this.prev = prev;
-    this.next = next;
-  }
-}
+const empty = <T>(): XS<T> => {
+  const head = createLink<T>(null, null, null);
+  const tail = createLink<T>(null, null, null);
+  const curr = head;
 
-export default class LinkedList<T> implements List<T> {
-  public static Of<R>(xs: R[] = []): List<R> {
-    return new LinkedList(xs);
-  }
+  head.next = tail;
+  tail.prev = head;
 
-  private readonly head: Link<T> = Link.Of();
-  private readonly tail: Link<T> = Link.Of();
-  private curr: Link<T> = this.head;
-  private length: number = 0;
+  return { head, tail, curr, length: 0 };
+};
 
-  private constructor(xs: T[]) {
-    this.head.next = this.tail;
-    this.tail.prev = this.head;
-    this.curr = this.head;
+export const LinkedList = <T>(xs: XS<T> = empty()): List<T> => ({
 
-    xs.forEach((x) => this.push(x));
-  }
+  at: (index: number) => {
+    let node = xs.curr;
 
-  private get value(): T {
-    if (this.curr.next != this.tail) {
-      return this.curr.next.value;
-    }
-  }
-
-  get count(): number {
-    return this.length;
-  }
-
-  at(index: number): List<T> {
-    if (index < 0 || index >= this.length) {
-      throw new RangeError('index out of bounds');
-    }
-    this.moveToStart();
-    for (let i = 0; i < index; ++i) {
-      this.next();
-    }
-    return this;
-  }
-
-  clear(): void {
-    this.head.next = this.tail;
-    this.tail.prev = this.head;
-    this.curr = this.head;
-    this.length = 0;
-  }
-
-  get(index: number): T {
-    this.at(index);
-    return this.value;
-  }
-
-  insert(item: T): List<T> {
-    const link = Link.Of(item, this.curr, this.curr.next);
-    this.curr.next = link;
-    this.length += 1;
-    return this;
-  }
-
-  pop(): T | undefined {
-    if (this.length === 0) {
-      return;
-    }
-    const item = this.tail.prev;
-    this.tail.prev = item.prev;
-    item.prev.next = this.tail; 
-    this.length -= 1;
-    return item.value;
-  }
-
-  push(item: T): void {
-    const link = Link.Of(item, this.tail.prev, this.tail);
-    this.tail.prev.next = link;
-    this.tail.prev = link;
-    this.length += 1;
-  }
-
-  remove(): List<T> {
-    if (this.curr.next !== this.tail) {
-      this.curr.next = this.curr.next.next;
-      this.length -= 1;
-    }
-    return this;
-  }
-
-  set(index: number, value: T): List<T> {
-    this.at(index);
-    this.curr.next.value = value;
-    return this;
-  }
-
-  toArray(): T[] {
-    const xs: T[] = [];
-    this.moveToStart();
-    while (this.curr.next !== this.tail) {
-      xs.push(this.value);
-      this.next();
-    }
-    return xs;
-  }
-
-  toString(): string {
-    let xs: string = '';
-    let link = this.head;
-
-    while (link !== this.tail) {
-      xs += `${xs ? ', ' : ''}${link.value}`;
-      link = link.next;
+    for (let n = 0; n < index; ++n) {
+      node = node.next;
     }
 
-    xs += `${xs ? ', ' : ''}${link.value}`;
+    return LinkedList({
+      ...xs,
+      curr: node,
+    });
+  },
 
-    return JSON.stringify({
-      xs,
-      length: this.length,
-      curr: this.curr.value,
-    }, null, 2);
-  }
+  set: (item: T) => {
+    xs.curr.next.value = item;
+    return LinkedList<T>({...xs});
+  },
 
-  private next(): void {
-    if (this.curr !== this.tail) {
-      this.curr = this.curr.next;
+  value: () => xs.curr.next.value,
+
+  clear: () => LinkedList<T>(empty<T>()),
+
+  reset: () => LinkedList<T>({ ...xs, curr: xs.head }),
+
+  length: () => xs.length,
+
+  insert: (item: T) => {
+    const link = createLink(item, xs.curr.next.prev, xs.curr.next);
+    xs.curr.next.prev = link;
+    xs.curr.next = link;
+
+    return LinkedList({
+      ...xs,
+      length: xs.length + 1,
+    });
+  },
+
+  append: (item: T) => {
+    const link = createLink(item, xs.tail.prev, xs.tail);
+
+    xs.tail.prev.next = link;
+    xs.tail.prev = link;
+
+    return LinkedList({
+      ...xs,
+      length: xs.length + 1,
+    });
+  },
+
+  remove: (): [T, List<T>] => {
+    const item = xs.curr.next.value;
+
+    xs.curr.next.next.prev = xs.curr;
+    xs.curr.next = xs.curr.next.next;
+
+    const next = LinkedList<T>({
+      ...xs,
+      length: xs.length - 1,
+    });
+
+    return [item, next];
+  },
+
+  next: () => {
+    if (xs.curr.next === xs.tail) {
+      return null;
     }
-  }
 
-  private moveToStart(): LinkedList<T> {
-    this.curr = this.head;
-    return this;
+    const item = xs.curr.next.value;
+    const next = LinkedList<T>({
+      ...xs,
+      curr: xs.curr.next.next,
+    });
+
+    return [item, next];
+  },
+
+  toArray: () => {
+    const values: T[] = [];
+    let node = xs.head.next;
+
+    while (node !== xs.tail) {
+      values.push(node.value);
+      node = node.next;
+    }
+
+    return values;
   }
-}
+});

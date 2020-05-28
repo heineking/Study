@@ -1,15 +1,15 @@
 export interface List<T> {
-  readonly count: number;
+  append(item: T): List<T>;
   at(index: number): List<T>;
-  clear(): void;
-  get(index: number): T;
+  clear(): List<T>;
   insert(item: T): List<T>;
-  pop(): T | undefined;
-  push(item: T): void; 
-  remove(): List<T>;
-  set(index: number, value: T): List<T>;
+  length(): number;
+  next(): [T, List<T>] | null;
+  remove(): [T, List<T>];
+  reset(): List<T>;
+  set(item: T): List<T>;
   toArray(): T[];
-  toString(): string;
+  value(): T;
 }
 
 export interface Stack<T> {
@@ -22,20 +22,20 @@ export interface Stack<T> {
 }
 
 export interface Queue<T> {
-  readonly count: number;
-  clear(): void;
-  enqueue(item: T): void;
-  dequeue(): T;
+  count(): number;
+  clear(): Queue<T>;
+  enqueue(item: T): Queue<T>;
+  dequeue(): [T, Queue<T>];
   peek(): T;
   toArray(): T[];
 }
 
 export interface Dictionary<K, T> {
-  readonly size: number;
-  insert(key: K, item: T): void;
-  find(key: K): T;
-  remove(key: K): T;
-  removeAny(): T;
+  size(): number;
+  insert(key: K, item: T): Dictionary<K, T>;
+  find(key: K): [T, Dictionary<K, T>];
+  remove(key: K): [T, Dictionary<K, T>];
+  removeAny(): [T, Dictionary<K, T>];
   toArray(): Array<[K, T]>;
 }
 
@@ -44,8 +44,8 @@ export interface KeyValuePair<K, T> {
   readonly value: T;
 }
 
-export interface KeyCompare<T> {
-  lt(x: T, y: T): boolean;
-  eq(x: T, y: T): boolean;
-  gt(x: T, y: T): boolean;
+export interface Compare<T> {
+  lt(a: T, b: T): boolean;
+  eq(a: T, b: T): boolean;
+  gt(a: T, b: T): boolean;
 }
