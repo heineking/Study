@@ -62,9 +62,15 @@ export const ArrayList = <T>(xs: XS<T> = empty<T>()): List<T> => ({
       };
     }, {});
 
+    const nextLength = xs.length - 1;
+
+    const nextPos = xs.pos === nextLength
+      ? nextLength > 0 ? xs.pos - 1 : xs.pos
+      : xs.pos;
+
     const next = ArrayList<T>({
-      pos: xs.pos,
-      length: xs.length - 1,
+      pos: nextPos,
+      length: nextLength,
       values,
     });
 

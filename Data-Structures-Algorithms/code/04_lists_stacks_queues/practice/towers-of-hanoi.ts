@@ -1,5 +1,5 @@
 import { Stack } from "../types";
-import ArrayStack from "../ArrayStack";
+import { ArrayStack } from "../ArrayStack";
 
 type Pole = 'a' | 'b' | 'c';
 type Poles = Record<Pole, Stack<number>>;
@@ -12,24 +12,28 @@ interface Towers {
 const createTowers = (n: number): Towers => {
 
   const poles: Poles = {
-    a: ArrayStack.Of<number>(),
-    b: ArrayStack.Of<number>(),
-    c: ArrayStack.Of<number>()   
+    a: ArrayStack<number>(),
+    b: ArrayStack<number>(),
+    c: ArrayStack<number>()   
   };
 
   while(n) {
-    poles.a.push(n);
+    poles.a = poles.a.push(n);
     n -= 1;
   }
 
   return {
     move: (src: Pole, dest: Pole) => {
-      const disk = poles[src].pop()
-      if (poles[dest].count > 0 && disk > poles[dest].peek()) {
+      let [disk, pole] = poles[src].pop()
+      poles[src] = pole;
+
+      if (poles[dest].count() > 0 && disk > poles[dest].peek()) {
         throw new Error();
       }
-      poles[dest].push(disk);
+
+      poles[dest] = poles[dest].push(disk);
     },
+
     get(pole: Pole): number[] {
       return poles[pole].toArray();
     }
@@ -66,19 +70,21 @@ const iterative = (n: number): number[] => {
   const towers = createTowers(n);
 
   const moveTowers = (disk: number, src: Pole, dest: Pole, spare: Pole) => {
-    const ops = ArrayStack.Of<Operation>();
+    let ops = ArrayStack<Operation>();
 
-    ops.push({ disk, src, dest, spare });
+    ops = ops.push({ disk, src, dest, spare });
 
-    while (ops.count > 0) {
-      const op = ops.pop();
+    while (ops.count() > 0) {
+      let op!: Operation;
+      [op, ops] = ops.pop();
+
       if (op.move) {
         towers.move(op.src, op.dest);
       } else if (op.disk > 0) {
         // record the operations (reversed)
-        ops.push({ disk: op.disk - 1, src: op.spare, dest: op.dest, spare: op.src });
-        ops.push({ move: true, src: op.src, dest: op.dest });
-        ops.push({ disk: op.disk - 1, src: op.src, dest: op.spare, spare: op.dest });
+        ops = ops.push({ disk: op.disk - 1, src: op.spare, dest: op.dest, spare: op.src });
+        ops = ops.push({ move: true, src: op.src, dest: op.dest });
+        ops = ops.push({ disk: op.disk - 1, src: op.src, dest: op.spare, spare: op.dest });
       }
     }
   };

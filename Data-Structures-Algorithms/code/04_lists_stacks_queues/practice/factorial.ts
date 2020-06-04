@@ -7,14 +7,16 @@ function factorial(stack: Stack<number>, n: number): number {
 
   // load the stack
   while (n > 1) {
-    stack.push(n);
+    stack = stack.push(n);
     n -= 1;
   }
 
   // compute the result
   let result = 1;
-  while (stack.count > 0) {
-    result = result * stack.pop();
+  while (stack.count() > 0) {
+    let value: number;
+    [value, stack] = stack.pop();
+    result = result * value;
   }
 
   return result;

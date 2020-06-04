@@ -13,10 +13,10 @@ export interface List<T> {
 }
 
 export interface Stack<T> {
-  readonly count: number;
-  clear(): void;
-  push(item: T): void;
-  pop(): T;
+  count(): number;
+  clear(): Stack<T>;
+  push(item: T): Stack<T>;
+  pop(): [T, Stack<T>];
   peek(): T;
   toArray(): T[];
 }
