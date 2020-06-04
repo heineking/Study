@@ -23,14 +23,13 @@ export const ArrayList = <T>(xs: XS<T> = empty<T>()): List<T> => ({
   }),
 
   insert: (item: T) => {
+    const values: Values<T> = {};
 
-    const values = range(0, xs.length).reduce((values, i) => {
-      const j = i + i < xs.pos ? 0 : 1;
-      return {
-        ...values,
-        [j]: xs.values[i],
-      }
-    }, {});
+    for (const index of range(0, xs.length)) {
+      const shiftBy = xs.pos <= index ? 1 : 0;
+      const nextIndex = index + shiftBy;
+      values[nextIndex] = xs.values[index];
+    }
 
     return ArrayList<T>({
       pos: xs.pos,

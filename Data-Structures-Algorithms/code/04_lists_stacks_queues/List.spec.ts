@@ -23,6 +23,12 @@ describe('LinkedList', () => {
       expect(list.toArray()).to.eql([1, 0]);
     });
 
+    it('should be able to insert multiple times', () => {
+      let list = LinkedList<number>();
+      list = list.insert(0).insert(1).insert(2).insert(3);
+      expect(list.toArray()).to.eql([3, 2, 1, 0]);
+    });
+
   });
 
   describe('#append', () => {
@@ -79,6 +85,12 @@ describe('ArrayList', () => {
       let xs = ArrayList<number>();
       xs = xs.insert(0).insert(1);
       expect(xs.toArray()).to.eql([1, 0]);
+    });
+
+    it('should insert multiple times', () => {
+      let xs = ArrayList<number>();
+      xs = xs.insert(0).insert(1).insert(2).insert(3);
+      expect(xs.toArray()).to.eql([3, 2, 1, 0]);
     });
   });
 
