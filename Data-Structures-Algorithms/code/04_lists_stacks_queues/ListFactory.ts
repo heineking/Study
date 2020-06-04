@@ -8,6 +8,11 @@ type Fn<T> = (xs: List<T>) => List<T>;
 export const sortedList = <T>(cmp: Compare<T>, xs: List<T>): List<T> => ({
   ...xs,
   insert: (item) => {
+    xs = xs.reset();
+    let curr = xs.value();
+    while (cmp.lt(curr, item)) {
+      [curr, xs] = xs.next();
+    }
     return sortedList(cmp, xs.insert(item));
   }, 
 });

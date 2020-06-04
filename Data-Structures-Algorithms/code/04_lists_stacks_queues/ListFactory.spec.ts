@@ -14,8 +14,8 @@ describe('sortedList', () => {
     };
 
     let xs = sortedList<number>(cmp, ArrayList<number>());
-    xs = xs.insert(3).insert(2).insert(1);
-    expect(xs.toArray()).to.eql([1, 2, 3]);
+    xs = xs.insert(0).insert(1).insert(2).insert(3);
+    expect(xs.toArray()).to.eql([0, 1, 2, 3]);
   });
 
 });
