@@ -1,12 +1,33 @@
-import { Dictionary, KeyValuePair, List } from './types';
+import { Dictionary, KeyValuePair, List, Compare } from './types';
 import { ArrayList } from './ArrayList';
 
-const find = <T>(xs: List<T>, predicate: (item: T) => boolean): [T, List<T>] => {
+export const find = <T>(xs: List<T>, predicate: (item: T) => boolean): [T, List<T>] => {
   xs = xs.reset();
   let next: [T, List<T>];
   while (next = xs.next()) {
     if (predicate(next[0])) {
       return next;
+    }
+  }
+};
+
+export const binarySearch =  <K, T>(cmp: Compare<K>, xs: List<KeyValuePair<K, T>>, key: K): T => {
+  let left = -1, right = xs.length();
+
+  while (left + 1 !== right) {
+
+    const middle = Math.floor((left + right) / 2);
+
+    const kv = xs.at(middle).value();
+
+    if (cmp.lt(key, kv.key)) {
+      right = middle;
+    }
+    else if (cmp.eq(key, kv.key)) {
+      return kv.value;
+    }
+    else if (cmp.gt(key, kv.key)) {
+      left = middle;
     }
   }
 };
@@ -20,10 +41,13 @@ export const ArrayDictionary = <K, T>(xs: List<KeyValuePair<K, T>> = ArrayList<K
   },
 
   find: (key: K) => {
-    const result = find(xs, kv => kv.key === key);
-    if (result) {
-      const [item, ys] = result;
-      return [item.value, ArrayDictionary(ys)];
+    xs = xs.reset();
+    let next: [KeyValuePair<K, T>, List<KeyValuePair<K, T>>];
+    while (next = xs.next()) {
+      if (next[0].key === key) {
+        const [item, ys] = next;
+        return [item.value, ArrayDictionary(ys)];
+      }
     }
   },
 
@@ -42,3 +66,10 @@ export const ArrayDictionary = <K, T>(xs: List<KeyValuePair<K, T>> = ArrayList<K
 
   toArray: () => xs.toArray().map(x => [x.key, x.value]),
 });
+
+type F = <K, T>(dict: Dictionary<K, T>) => Dictionary<K, T>;
+
+const createDictionary = <K, T>(...fs: F[]): Dictionary<K, T> => {
+  const x = ArrayDictionary<K, T>();
+  return fs.reduce((y, f) => f(y), x);
+};
