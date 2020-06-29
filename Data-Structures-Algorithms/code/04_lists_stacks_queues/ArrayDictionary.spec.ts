@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { ArrayDictionary, binarySearch } from './ArrayDictionary';
+import { ArrayDictionary, createDictionary, binarySearch } from './ArrayDictionary';
 import { ArrayList } from './ArrayList';
 import { KeyValuePair, Compare } from './types';
 
@@ -23,7 +23,7 @@ describe('ArrayDictionary', () => {
       dict = dict.insert(1, { foo: 'foo' });
       dict = dict.insert(0, { bar: 'bar' });
 
-      const [item] = dict.find(0) || [];
+      const item = dict.find(0);
       expect(item).to.eql({ bar: 'bar' });
     });
 
@@ -106,11 +106,13 @@ describe('binarySearch', () => {
   it('should find item by key by successively halving search area', () => {
 
     let xs = ArrayList<KeyValuePair<number, string>>();
+
     for (let i = 0; i < 1000; ++i) {
       xs = xs.append({ key: i, value: `${i}` });
     }
 
     let count = 0;
+
     const cmp: Compare<number> = {
       lt: (a, b) => {
         count += 1;

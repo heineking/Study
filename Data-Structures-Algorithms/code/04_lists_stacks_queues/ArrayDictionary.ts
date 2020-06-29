@@ -46,7 +46,7 @@ export const ArrayDictionary = <K, T>(xs: List<KeyValuePair<K, T>> = ArrayList<K
     while (next = xs.next()) {
       if (next[0].key === key) {
         const [item, ys] = next;
-        return [item.value, ArrayDictionary(ys)];
+        return  item.value;
       }
     }
   },
@@ -66,10 +66,3 @@ export const ArrayDictionary = <K, T>(xs: List<KeyValuePair<K, T>> = ArrayList<K
 
   toArray: () => xs.toArray().map(x => [x.key, x.value]),
 });
-
-type F = <K, T>(dict: Dictionary<K, T>) => Dictionary<K, T>;
-
-const createDictionary = <K, T>(...fs: F[]): Dictionary<K, T> => {
-  const x = ArrayDictionary<K, T>();
-  return fs.reduce((y, f) => f(y), x);
-};

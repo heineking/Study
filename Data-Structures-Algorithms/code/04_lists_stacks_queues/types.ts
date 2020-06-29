@@ -33,7 +33,7 @@ export interface Queue<T> {
 export interface Dictionary<K, T> {
   size(): number;
   insert(key: K, item: T): Dictionary<K, T>;
-  find(key: K): [T, Dictionary<K, T>];
+  find(key: K): T;
   remove(key: K): [T, Dictionary<K, T>];
   removeAny(): [T, Dictionary<K, T>];
   toArray(): Array<[K, T]>;
