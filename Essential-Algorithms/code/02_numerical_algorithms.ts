@@ -14,6 +14,7 @@ describe('1. Write an algorithm to use a fair six sided die', () => {
   };
 
   const createRand = (min: number, max: number, gen: () => number) => () => min + Math.floor(gen() * (max - min + 1));
+
   const createDie = (seed: number) => createRand(1, 6, createPRNG(seed));
 
   const die = createDie(59);
