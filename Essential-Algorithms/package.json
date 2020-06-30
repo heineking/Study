@@ -1,0 +1,21 @@
+{
+  "name": "essential-algorithms",
+  "version": "1.0.0",
+  "description": "*Author:* Rod Stephens",
+  "main": "''",
+  "scripts": {
+    "test": "npx mocha --require ts-node/register 'code/**/*.ts'"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^14.0.14",
+    "chai": "^4.2.0",
+    "mocha": "^8.0.1",
+    "ts-node": "^8.10.2",
+    "tslint": "^6.1.2",
+    "typescript": "^3.9.5"
+  }
+}
