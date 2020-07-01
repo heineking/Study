@@ -110,7 +110,7 @@ describe('4. Write an algorithm to use a biased six-sided die to generate fair v
     const expected = 1 / 6;
 
     for (const dist of dists) {
-      expect(dist - expected).to.be.lessThan(0.05);
+      expect(dist - expected).to.be.lessThan(0.01);
     }
   });
 });
