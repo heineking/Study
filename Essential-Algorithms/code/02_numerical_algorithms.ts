@@ -56,7 +56,7 @@ describe('1. Write an algorithm to use a fair six sided die', () => {
     const expected = 1 / 2;
 
     for (const dist of dists) {
-      expect(dist - expected).to.be.lessThan(0.05);
+      expect(dist - expected).to.be.lessThan(0.005);
     }
   });
 
