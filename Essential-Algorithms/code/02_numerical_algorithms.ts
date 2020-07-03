@@ -6,8 +6,27 @@ const createPRNG = (seed: number) => {
   const m = 18973;
   let x = seed;
 
-  // (a*x + b) % m
+  // (a * x + b) % m
   return () => ((x = (a * x + b) % m) / m);
+};
+
+type Counts = Record<number, number>;
+
+const rollDie = (die: () => number, times: number): Counts => {
+  const counts: Counts = {};
+  for (let i = 0; i < times; ++i) {
+    const roll = die();
+    counts[roll] = (counts[roll] || 0) + 1
+  }
+  return counts;
+};
+
+const getDistributions = (counts: Counts): Counts => {
+  const total = Object.values(counts).reduce((m, n) => m + n, 0);
+  return Object.entries(counts).reduce((props, [side, count]) => ({
+    ...props,
+    [side]: count / total,
+  }), {});
 };
 
 describe('1. Write an algorithm to use a fair six sided die', () => {
@@ -21,19 +40,9 @@ describe('1. Write an algorithm to use a fair six sided die', () => {
   const coin = () => die() <= 3 ? 'tails' : 'heads';
 
   it('should use a (mostly) fair six sided die', () => {
-    const counts: { [n: number]: number } = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
-    const rolls = 10000;
-
-    for (let i = 0; i < rolls; ++i) {
-      const n = die();
-      counts[n] += 1;
-    }
-
-    const dists = Object
-      .values(counts)
-      .map((count) => count / rolls);
-
+    const counts = rollDie(die, 10000);
     const expected = 1 / 6;
+    const dists = Object.values(getDistributions(counts));
 
     for (const dist of dists) {
       const diff = Math.abs(dist - expected);
@@ -75,7 +84,10 @@ describe('4. Write an algorithm to use a biased six-sided die to generate fair v
     throw new Error(value.toString());
   };
 
-  const biasedDie = pickItemWithProbabilities([1, 2, 3, 4, 5, 6], [0.3, 0.3, 0.1, 0.1, 0.1, 0.1]);
+  const biasedDie = pickItemWithProbabilities(
+    [1, 2, 3, 4, 5, 6],
+    [0.3, 0.3, 0.1, 0.1, 0.1, 0.1]
+  );
 
   const die = (): number => {
 
@@ -94,18 +106,19 @@ describe('4. Write an algorithm to use a biased six-sided die to generate fair v
     return roll;
   };
 
+  it('should use a biased die', () => {
+    const counts = rollDie(biasedDie, 10000);
+    const distributions = getDistributions(counts);
+    const expected: any = { 1: 0.3, 2: 0.3, 3: 0.1, 4: 0.1, 5: 0.1, 6: 0.1 };
+
+    Object.entries(distributions).forEach(([side, dist]) => {
+      expect(dist - expected[side]).to.be.lessThan(0.01);
+    });
+  });
+
   it('should create a fair die out of a biased die', () => {
-
-    const rolls = 5000;
-    const counts: { [n: number]: number } = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
-
-    for (let i = 0; i < rolls; ++i) {
-      counts[die()] += 1;
-    }
-
-    const dists = Object
-      .values(counts)
-      .map((count) => count / rolls);
+    const counts = rollDie(die, 10000);
+    const dists = Object.values(getDistributions(counts));
 
     const expected = 1 / 6;
 
