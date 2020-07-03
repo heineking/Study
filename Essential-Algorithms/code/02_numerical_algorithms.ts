@@ -165,7 +165,7 @@ describe('4. Write an algorithm to use a biased six-sided die to generate fair v
   The probability that we roll all the numbers in a row would be:
 
     Number of permutations = 6!
-    Probability of each permutation = 0.3^2 x 0.1^5
+    Probability of each permutation = 0.3^2 x 0.1^4
 
     6! x (0.3^2 x 0.1^4) = 0.00648
 */
