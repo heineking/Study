@@ -149,7 +149,7 @@ describe('4. Write an algorithm to use a biased six-sided die to generate fair v
 
   In words, the probability of rolling all 6 sides of die in 6 tries is the
   total number of permuntations of all 6 sides times the probability of the
-  combination of sides.
+  all of sides occurring.
 
   Now, we can use this to work out the probability of a biased die.
 
@@ -165,8 +165,8 @@ describe('4. Write an algorithm to use a biased six-sided die to generate fair v
   The probability that we roll all the numbers in a row would be:
 
     Number of permutations = 6!
-    Probability of each permutation = 0.3^2 x 0.1^5 = 0.00648
+    Probability of each permutation = 0.3^2 x 0.1^5
 
-    6! x 0.5 x 0.1^5 = 0.0036
+    6! x (0.3^2 x 0.1^4) = 0.00648
 */
 });
