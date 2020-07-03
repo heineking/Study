@@ -107,7 +107,7 @@ describe('4. Write an algorithm to use a biased six-sided die to generate fair v
   };
 
   it('should use a biased die', () => {
-    const counts = rollDie(biasedDie, 10000);
+    const counts = rollDie(biasedDie, 100000);
     const distributions = getDistributions(counts);
     const expected: any = { 1: 0.3, 2: 0.3, 3: 0.1, 4: 0.1, 5: 0.1, 6: 0.1 };
 
@@ -168,5 +168,58 @@ describe('4. Write an algorithm to use a biased six-sided die to generate fair v
     Probability of each permutation = 0.3^2 x 0.1^4
 
     6! x (0.3^2 x 0.1^4) = 0.00648
+*/
+});
+
+describe('5. Write an algorithm to pick M random values from an array containing N items (where M <= N)', () => {
+
+  const pickValues = <T>(prng: () => number, xs: T[], m: number) => {
+    const ys = xs.slice();
+    const values: T[] = [];
+
+    while (values.length !== m) {
+      const index = Math.floor(prng() * ys.length);
+      values.push(ys[index]);
+      ys.splice(index, 1);
+    }
+
+    return values;
+  };
+
+  it('should not mutate the original array', () => {
+    const xs = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const expected = [...xs];
+    const values = pickValues(() => Math.random(), xs, 5);
+    expect(xs).to.eql(expected);
+  });
+
+  it('should pick an item from an array of 10 at proportion of 19/90 when M = 2', () => {
+    const xs = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const m = 2;
+
+    // The probability that a number will be selected is
+    // 1/10 + 1/9 = 9/90 + 10/90 = 19/90
+
+    const counts: Counts = {};
+    const n = 500000;
+    for (let i = 0; i < n; ++i) {
+      const [x1, x2] = pickValues(() => Math.random(), xs, m);
+      counts[x1] = (counts[x1] || 0) + 1;
+      counts[x2] = (counts[x2] || 0) + 1;
+    }
+
+    const dists = Object.values(getDistributions(counts));
+    const expected = 19/90;
+
+    expect(dists.length).to.equal(10);
+
+    for (const dist of dists) {
+      expect(dist - expected).to.be.lessThan(0.005);
+    }
+  });
+
+/*
+  Exercise 5, Part 2. What is the runtime of the algorithm?
+  The runtime of the algorithm is O(M), assuming that slicing the array takes O(1)
 */
 });
