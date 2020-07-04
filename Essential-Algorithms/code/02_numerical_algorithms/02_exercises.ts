@@ -128,12 +128,16 @@ describe('4. Write an algorithm to use a biased six-sided die to generate fair v
     6! x (0.2^2 x 0.15^4) = 0.01458
 */
 });
+const range = (start: number, end: number) =>
+  Array
+    .from({ length: (end - start + 1) })
+    .map((_, index) => start + index);
 
 const repeat = <R>(fn: () => R, times: number): R[] => Array.from({ length: times }).map(() => fn());
 
 const flatten = <T>(xs: T[][]) => ([] as T[]).concat(...xs);
 
-const getDistributions = (xs: number[]) => {
+const getDistributions = (xs: number[], total: number = xs.length) => {
 
   const counts = xs.reduce((acc, x) => Object.assign(acc, {
     [x]: (acc[x] || 0) + 1,
@@ -141,8 +145,11 @@ const getDistributions = (xs: number[]) => {
 
   return Object
     .values(counts)
-    .map((count) => count / xs.length);
+    .map((count) => count / total);
 };
+
+const assertDistribution = (dists: number[], expected: number, tolerance: number) =>
+  dists.forEach((dist) => expect(Math.abs(dist -  expected)).to.be.lessThan(tolerance));
 
 describe('5. Write an algorithm to pick M random values from an array containing N items (where M <= N)', () => {
 
@@ -163,10 +170,7 @@ describe('5. Write an algorithm to pick M random values from an array containing
     const ys = flatten(repeat(() => pickRandomValues(prng, xs, m), 10000));
     const distributions = getDistributions(ys);
 
-    distributions.forEach((dist) => {
-      expect(Math.abs(dist - 1/10)).to.be.lessThan(0.01);
-    });
-
+    assertDistribution(distributions, 1/10, 0.01);
   });
 
 /*
@@ -177,8 +181,6 @@ describe('5. Write an algorithm to pick M random values from an array containing
 });
 
 describe('6. Write an algorithm to deal five cards to players for a poker program.', () => {
-
-  const range = (start: number, count: number) => Array.from({ length: count }).map((_, index) => start + index);
 
   const deck = range(1, 52);
 
@@ -220,9 +222,7 @@ describe('6. Write an algorithm to deal five cards to players for a poker progra
 
     expect(distributions.length).to.equal(52);
 
-    distributions.forEach((dist) =>
-      expect(Math.abs(dist - (1 / 52))).to.be.lessThan(0.01)
-    );
+    assertDistribution(distributions, 1/52, 0.01);
   });
 
 /*
