@@ -161,13 +161,14 @@ describe('5. Write an algorithm to pick M random values from an array containing
     const xs = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     const m = 2;
 
-    const prng = () => Math.random();
+    const prng = createPRNG(113);
     const ys = flatten(repeat(() => pickRandomValues(prng, xs, m), 10000));
     const distributions = getDistributions(ys);
 
     distributions.forEach((dist) => {
       expect(Math.abs(dist - 1/10)).to.be.lessThan(0.01);
     });
+
   });
 
 /*
