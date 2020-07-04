@@ -12,8 +12,6 @@ import {
 import {
   pickRandomValues
 } from './pick';
-import { createReadStream } from 'fs';
-
 
 const createDie = (generator: NG) => createPRIG(generator, 1, 6);
 
