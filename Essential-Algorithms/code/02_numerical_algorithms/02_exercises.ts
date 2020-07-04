@@ -240,7 +240,7 @@ describe('6. Write an algorithm to deal five cards to players for a poker progra
 */
 });
 
-describe('7. Write a program that simulates rolling two six-sided dice and draws a graph', () => {
+describe('7. Write a program that simulates rolling two six-sided dice', () => {
   const prng1 = createPRNG(42359);
   const die1 = createDie(prng1);
 
