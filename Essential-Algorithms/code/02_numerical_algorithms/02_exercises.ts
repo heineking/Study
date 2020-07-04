@@ -12,6 +12,7 @@ import {
 import {
   pickRandomValues
 } from './pick';
+import { assert } from 'console';
 
 const createDie = (generator: NG) => createPRIG(generator, 1, 6);
 
@@ -237,4 +238,38 @@ describe('6. Write an algorithm to deal five cards to players for a poker progra
 
   The second `it(...)` assert above proves that the cards are dealt without bias.
 */
+});
+
+describe('7. Write a program that simulates rolling two six-sided dice and draws a graph', () => {
+  const prng1 = createPRNG(42359);
+  const die1 = createDie(prng1);
+
+  const prng2 = createPRNG(13859);
+  const die2 = createDie(prng2);
+
+  const dice = () => die1() + die2();
+
+  const probabilities = {
+    2: 0.0278,
+    3: 0.0556,
+    4: 0.0833,
+    5: 0.1111,
+    6: 0.1389,
+    7: 0.1667,
+    8: 0.1389,
+    9: 0.1111,
+    10: 0.0833,
+    11: 0.0556,
+    12: 0.0278
+  };
+
+  it('should roll two six-side dice at expected probability', () => {
+
+    const outcome = play(dice, 50000);
+    const diffs = outcome.getDistributionDiffs(probabilities);
+
+    Object.values(diffs).forEach((diff) =>
+      expect(diff).to.be.lessThan(0.01)
+    );
+  });
 });

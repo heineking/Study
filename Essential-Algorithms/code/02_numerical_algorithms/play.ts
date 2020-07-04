@@ -15,7 +15,7 @@ export const play = (generator: () => number | string, times: number) => {
         [x]: count / times,
       }), {});
 
-  const getDistributionDiffs = (expected: Result) =>
+  const getDistributionDiffs = (expected: Result): Result =>
     Object.entries(expected)
       .reduce((diffs, [x, dist]) => ({
         ...diffs,
