@@ -1,19 +1,12 @@
 import { NG } from './prng';
 
-export const pickRandomValues = <T>(prng: NG, xs: T[], m: number, ys: T[] = []): T[] => {
-  if (ys.length === m) {
-    return ys;
+export const pickRandomValues = <T>(prng: NG, xs: T[], m: number): T[] => {
+  const values: T[] = [];
+  const ys = xs.slice();
+  while (values.length !== m) {
+    const index = Math.floor(prng() * ys.length);
+    values.push(ys[index]);
+    ys.splice(index, 1);
   }
-
-  const index = Math.floor(prng() * xs.length);
-  const y = xs[index];
-
-  xs = xs.slice().splice(index, 1);
-
-  return pickRandomValues(
-    prng,
-    xs,
-    m,
-    [...ys, y],
-  );
-};
+  return values;
+}

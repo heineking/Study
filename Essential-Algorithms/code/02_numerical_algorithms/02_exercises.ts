@@ -12,6 +12,7 @@ import {
 import {
   pickRandomValues
 } from './pick';
+import { createReadStream } from 'fs';
 
 
 const createDie = (generator: NG) => createPRIG(generator, 1, 6);
@@ -73,17 +74,17 @@ describe('4. Write an algorithm to use a biased six-sided die to generate fair v
   };
 
   it('should use a biased die', () => {
-    const outcome = play(biasedDie, 10000);
+    const outcome = play(biasedDie, 50000);
     const diffs = outcome.getDistributionDiffs(biasedProbabilities);
 
     Object.values(diffs).forEach((diff) => {
-      expect(diff).to.be.lessThan(0.01);
+      expect(diff).to.be.lessThan(0.015);
     });
   });
 
   it('should make a fair die out of a biased die', () => {
-    const outcome = play(die, 10000);
-    expect(outcome.isFair(1/6, 0.01)).to.equal(true);
+    const outcome = play(die, 20000);
+    expect(outcome.isFair(1/6, 0.015)).to.equal(true);
   });
 
 /*
@@ -130,23 +131,22 @@ describe('4. Write an algorithm to use a biased six-sided die to generate fair v
 */
 });
 
+const repeat = <R>(fn: () => R, times: number): R[] => Array.from({ length: times }).map(() => fn());
+
+const flatten = <T>(xs: T[][]) => ([] as T[]).concat(...xs);
+
+const getDistributions = (xs: number[]) => {
+
+  const counts = xs.reduce((acc, x) => Object.assign(acc, {
+    [x]: (acc[x] || 0) + 1,
+  }), {} as { [n: number]: number });
+
+  return Object
+    .values(counts)
+    .map((count) => count / xs.length);
+};
+
 describe('5. Write an algorithm to pick M random values from an array containing N items (where M <= N)', () => {
-
-  const repeat = <R>(fn: () => R, times: number): R[] => Array.from({ length: times }).map(() => fn());
-
-  const flatten = <T>(xs: T[][]) => ([] as T[]).concat(...xs);
-
-  const getDistributions = (xs: number[]) => {
-
-    const counts = xs.reduce((acc, x) => ({
-      ...acc,
-      [x]: (acc[x] || 0) + 1,
-    }), {} as { [n: number]: number });
-
-    return Object
-      .values(counts)
-      .map((count) => count / xs.length);
-  };
 
   it('should not mutate the original array', () => {
     const xs = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -176,4 +176,67 @@ describe('5. Write an algorithm to pick M random values from an array containing
   The runtime of the algorithm is O(M), assuming that slicing the array takes O(1)
 */
 
+});
+
+describe('6. Write an algorithm to deal five cards to players for a poker program.', () => {
+
+  const range = (start: number, count: number) => Array.from({ length: count }).map((_, index) => start + index);
+
+  const deck = range(1, 52);
+
+  const chunk = <T>(xs: T[], size: number) => {
+    const chunks: T[][] = [];
+    for (let i = 0; i < xs.length; i += size) {
+      chunks.push(xs.slice(i, i + size));
+    }
+    return chunks;
+  };
+
+  const createDealer = (prng: NG, cards: number[]) => {
+    return (players: number, handSize: number) => chunk(pickRandomValues(prng, cards, players * handSize), handSize);
+  };
+
+  const dealer = createDealer(createPRNG(113), deck);
+
+  it('should return array of hands', () => {
+    const players = 2;
+    const handSize = 5;
+
+    const hands = dealer(players, handSize);
+
+    expect(hands.length).to.equal(players);
+
+    hands.forEach((hand) =>
+      expect(hand.length).to.equal(5),
+    );
+  });
+
+  it('should pick cards with equal distribution', () => {
+    const players = 3;
+    const handSize = 5;
+    const numberOfGames = 5000;
+
+    const games = repeat(() => dealer(players, handSize), numberOfGames);
+    const cards = flatten(flatten(games));
+    const distributions = getDistributions(cards);
+
+    expect(distributions.length).to.equal(52);
+
+    distributions.forEach((dist) =>
+      expect(Math.abs(dist - (1 / 52))).to.be.lessThan(0.01)
+    );
+  });
+
+/*
+  Does it matter whether you deal one card to each player in turn until every player has
+  five cards or whether you deal five cards all at once to each player in turn?
+
+  Answer:
+
+  It does not matter if the cards are dealt one-by-one or all at once because
+  the cards are sufficiently randomized which means there is no bias in the order that
+  the cards are dealt.
+
+  The second `it(...)` assert above proves that the cards are dealt without bias.
+*/
 });
