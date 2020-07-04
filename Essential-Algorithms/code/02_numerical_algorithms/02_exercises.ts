@@ -269,7 +269,7 @@ describe('7. Write a program that simulates rolling two six-sided dice', () => {
     const diffs = outcome.getDistributionDiffs(probabilities);
 
     Object.values(diffs).forEach((diff) =>
-      expect(diff).to.be.lessThan(0.01)
+      expect(diff).to.be.lessThan(0.005)
     );
   });
 });
