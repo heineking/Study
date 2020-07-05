@@ -12,7 +12,14 @@ import {
 import {
   pickRandomValues
 } from './pick';
-import { assert } from 'console';
+
+import {
+  createRandomWalk,
+  Point,
+  Size,
+  createSelfAvoidingWalk,
+} from './walks';
+import { POINT_CONVERSION_COMPRESSED } from 'constants';
 
 const createDie = (generator: NG) => createPRIG(generator, 1, 6);
 
@@ -272,6 +279,77 @@ describe('7. Write a program that simulates rolling two six-sided dice', () => {
       expect(diff).to.be.lessThan(0.005)
     );
   });
+});
+
+const createGrid = (size: Size, walk: Point[]): string[][] => {
+  const grid: string[][] = [];
+  const pad = (s: string) => `${s}____`.slice(0, 3);
+
+  for (let i = 0; i < size.h; ++i) {
+    const row: string[] = [];
+    for (let j = 0; j < size.w; ++j) {
+      row.push(pad(''));
+    }
+    grid.push(row);
+  }
+
+  walk
+    .map((point) => translatePoint(size, point))
+    .forEach(([x, y], i) => grid[y][x] = pad(`${i}`));
+
+  return grid;
+};
+
+const translatePoint = ({ w, h }: Size, [x1, y1]: Point) => {
+  const x2 = (w / 2) + x1;
+  const y2 = (h / 2) + y1;
+  return [x2, y2];
+};
+
+describe('#. Random walk should return a random array of points', () => {
+
+  const len = 5;
+  const size: Size = { w: len * 2, h: len * 2 };
+
+  const randomWalk = createRandomWalk(createPRNG(113));
+
+  const walk = randomWalk(len);
+  const grid = createGrid(size, walk);
+
+  it('should produce an array based on size', () => {
+    expect(walk).to.be.length(len);
+  });
+
+  it('should print grid', () => {
+    const str = grid.map((row) => row.join('')).join('\n\t');
+    console.log(`\t${str}`);
+    expect(true).to.equal(true);
+  });
+});
+
+describe('#. Self avoiding array should return non-intersecting points', () => {
+
+  const selfAvoidingWalk = createSelfAvoidingWalk(createPRNG(257));
+
+  it('should not have any duplicate points', ()  => {
+    const size: Size = { w: 100, h: 100 };
+    const walk = selfAvoidingWalk(size);
+
+    const duplicates = walk.filter(([x1, y1], index) => walk.findIndex(([x2, y2]) => x1 === x2 && y1 === y2) !== index);
+
+    expect(duplicates.length).to.equal(0);
+  });
+
+  it('should print grid', () => {
+    const size: Size = { w: 10, h: 10 };
+    const walk = selfAvoidingWalk(size);
+
+    const grid = createGrid(size, walk);
+    const str = `\t${grid.map((row) => row.join('')).join('\n\t')}`
+    console.log(str);
+
+    expect(true).to.equal(true);
+  })
 });
 
 describe('8. In the complete self-avoiding random walk algorithm, what is the key backtracking step?', () => {

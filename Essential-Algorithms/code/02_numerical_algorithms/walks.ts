@@ -3,10 +3,8 @@ import { NG } from './prng';
 type Delta = -1 | 0 | 1;
 type Move = [Delta, Delta];
 
-type Point = { x: number; y: number };
-type Size = { w: number; h: number };
-
-const point = (x: number, y: number) => ({ x, y });
+export type Point = [number, number];
+export type Size = { w: number; h: number };
 
 const getNeighbors = (() => {
 
@@ -21,14 +19,15 @@ const getNeighbors = (() => {
     [+1,  0], // right middle
   ];
 
-  return ({ x, y }: Point) => moves.map(([dx, dy]) => point(x + dx, y + dy));
+  return ([x, y]: Point) => moves.map(([dx, dy]): Point => [x + dx, y + dy]);
 
 })();
 
-export const createRandomWalk = (prng: NG) => (origin: Point, len: number) => {
+export const createRandomWalk = (prng: NG) => (len: number) => {
+  const origin: Point = [0, 0];
   const points = [origin];
 
-  for (let i = 0; i < len; ++i) {
+  for (let i = 1; i < len; ++i) {
     const current = points.slice(-1)[0];
 
     const neighbors = getNeighbors(current);
@@ -41,13 +40,21 @@ export const createRandomWalk = (prng: NG) => (origin: Point, len: number) => {
   return points;
 };
 
-export const createSelfAvoidingWalk = (prng: NG) => (origin: Point, size: Size) => {
+export const createSelfAvoidingWalk = (prng: NG) => ({ w, h }: Size) => {
+  const xMin = -(w / 2);
+  const xMax = (w / 2);
+  const yMin = -(h / 2);
+  const yMax = (h / 2);
+
+  const origin: Point = [0, 0];
   const points = [origin];
 
-  const hasPoint = (p1: Point) => points.findIndex((p2) => p1.x === p2.x && p1.y === p2.y) > -1;
+  const hasPoint = ([x1, y1]: Point) => points.findIndex(([x2, y2]) => x1 === x2 && y1 === y2) > -1;
   const not = (f: (...args: any[]) => boolean) => (...args: any[]) => !f(...args)
 
-  const pointIsInGrid = (p: Point) => (p.x >= 0 && p.x < size.w) && (p.y >= 0 && p.y < size.h);
+  const pointIsInGrid = ([x, y]: Point) =>
+    (x >= xMin && x < xMax) &&
+    (y >= yMin && y < yMax);
 
   const getCurrentNeighbors = () =>
     getNeighbors(points.slice(-1)[0])
