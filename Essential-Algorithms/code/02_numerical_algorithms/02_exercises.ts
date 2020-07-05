@@ -273,3 +273,7 @@ describe('7. Write a program that simulates rolling two six-sided dice', () => {
     );
   });
 });
+
+describe('8. In the complete self-avoiding random walk algorithm, what is the key backtracking step?', () => {
+
+});
