@@ -383,3 +383,18 @@ describe('8. In the complete self-avoiding random walk algorithm, what is the ke
     expect(true).to.equal(true);
   });
 });
+
+/*
+  Question 9:
+
+  When building a complete self-avoiding random walk, what happens if the algorithm
+  does not randomize the neighbor list? Would that change the algorithm's performance?
+
+  Answer:
+
+  Randomizing the neighbors is what makes the complete walk "random". Removing the
+  randomize would cause the algorithm to produce the same walk for each run. The
+  algorithm slows down from randomizing the neighbors because it leads to more
+  backtracking.
+
+*/
