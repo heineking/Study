@@ -108,7 +108,7 @@ export const createCompleteSelfAvoidingWalk = (prng: NG) => (size: Size) => {
     }
 
     const neighbors = getCurrentNeighbors();
-    randomizeArray(prng, getCurrentNeighbors());
+    randomizeArray(prng, neighbors);
 
     if (neighbors.length === 0) {
       return false;
