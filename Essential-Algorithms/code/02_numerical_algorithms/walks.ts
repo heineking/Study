@@ -6,6 +6,13 @@ type Move = [Delta, Delta];
 export type Point = [number, number];
 export type Size = { w: number; h: number };
 
+const randomizeArray = <T>(prng: NG, xs: T[]) => {
+  for (let i = xs.length - 1; i > 0; i--) {
+    const j = Math.floor(prng() * (i + 1));
+    [xs[i], xs[j]] = [xs[j], xs[i]];
+  }
+};
+
 const getNeighbors = (() => {
 
   const moves: Move[] = [
@@ -22,6 +29,24 @@ const getNeighbors = (() => {
   return ([x, y]: Point) => moves.map(([dx, dy]): Point => [x + dx, y + dy]);
 
 })();
+
+const createPointIsInGrid = ({ w, h }: Size) => {
+  const xMin = -(w / 2);
+  const xMax = (w / 2);
+  const yMin = -(h / 2);
+  const yMax = (h / 2);
+
+  return ([x, y]: Point) =>
+    (x > xMin && x < xMax) &&
+    (y > yMin && y < yMax);
+};
+
+const pointIsNotVisited = (points: Point[]) => {
+  const visited = ([x1, y1]: Point) => points.findIndex(([x2, y2]) => x1 === x2 && y1 === y2) > -1;
+  const not = (f: (...args: any[]) => boolean) => (...args: any[]) => !f(...args);
+
+  return (point: Point) => not(visited)(point);
+};
 
 export const createRandomWalk = (prng: NG) => (len: number) => {
   const origin: Point = [0, 0];
@@ -40,26 +65,16 @@ export const createRandomWalk = (prng: NG) => (len: number) => {
   return points;
 };
 
-export const createSelfAvoidingWalk = (prng: NG) => ({ w, h }: Size) => {
-  const xMin = -(w / 2);
-  const xMax = (w / 2);
-  const yMin = -(h / 2);
-  const yMax = (h / 2);
-
+export const createSelfAvoidingWalk = (prng: NG) => (size: Size) => {
   const origin: Point = [0, 0];
   const points = [origin];
 
-  const hasPoint = ([x1, y1]: Point) => points.findIndex(([x2, y2]) => x1 === x2 && y1 === y2) > -1;
-  const not = (f: (...args: any[]) => boolean) => (...args: any[]) => !f(...args)
-
-  const pointIsInGrid = ([x, y]: Point) =>
-    (x >= xMin && x < xMax) &&
-    (y >= yMin && y < yMax);
+  const pointIsInGrid = createPointIsInGrid(size);
 
   const getCurrentNeighbors = () =>
     getNeighbors(points.slice(-1)[0])
       .filter(pointIsInGrid)
-      .filter(not(hasPoint))
+      .filter(pointIsNotVisited(points));
 
   let neighbors = getCurrentNeighbors();
 
@@ -72,4 +87,43 @@ export const createSelfAvoidingWalk = (prng: NG) => ({ w, h }: Size) => {
   }
 
   return points;
+};
+
+export const createCompleteSelfAvoidingWalk = (prng: NG) => (size: Size) => {
+  const length = (size.w - 1) * (size.h - 1);
+
+  const origin: Point = [0, 0];
+  const points: Point[] = [origin];
+
+  const pointIsInGrid = createPointIsInGrid(size);
+
+  const getCurrentNeighbors = () =>
+    getNeighbors(points.slice(-1)[0])
+      .filter(pointIsInGrid)
+      .filter(pointIsNotVisited(points));
+
+  const walk = (): boolean => {
+    if (points.length === length) {
+      return true;
+    }
+
+    const neighbors = getCurrentNeighbors();
+    randomizeArray(prng, getCurrentNeighbors());
+
+    if (neighbors.length === 0) {
+      return false;
+    }
+
+    for (const neighbor of neighbors) {
+      points.push(neighbor);
+      if (walk()) {
+        return true;
+      }
+      points.pop();
+    }
+
+    return false;
+  };
+
+  return walk() ? points : [];
 };

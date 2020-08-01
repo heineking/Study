@@ -18,6 +18,7 @@ import {
   Point,
   Size,
   createSelfAvoidingWalk,
+  createCompleteSelfAvoidingWalk,
 } from './walks';
 import { POINT_CONVERSION_COMPRESSED } from 'constants';
 
@@ -306,7 +307,7 @@ const translatePoint = ({ w, h }: Size, [x1, y1]: Point) => {
   return [x2, y2];
 };
 
-describe('#. Random walk should return a random array of points', () => {
+describe('8.# Random walk should return a random array of points', () => {
 
   const len = 5;
   const size: Size = { w: len * 2, h: len * 2 };
@@ -327,7 +328,7 @@ describe('#. Random walk should return a random array of points', () => {
   });
 });
 
-describe('#. Self avoiding array should return non-intersecting points', () => {
+describe('8.# Self avoiding array should return non-intersecting points', () => {
 
   const selfAvoidingWalk = createSelfAvoidingWalk(createPRNG(257));
 
@@ -341,7 +342,7 @@ describe('#. Self avoiding array should return non-intersecting points', () => {
   });
 
   it('should print grid', () => {
-    const size: Size = { w: 10, h: 10 };
+    const size: Size = { w: 6, h: 6 };
     const walk = selfAvoidingWalk(size);
 
     const grid = createGrid(size, walk);
@@ -354,4 +355,31 @@ describe('#. Self avoiding array should return non-intersecting points', () => {
 
 describe('8. In the complete self-avoiding random walk algorithm, what is the key backtracking step?', () => {
 
+  /*
+    The key backtracking step is the recursive call to add the next neighbor to the list of points
+  */
+
+  const completeSelfAvoidingWalk = createCompleteSelfAvoidingWalk(() => Math.random());
+
+  const size: Size = { w: 6, h: 6 };
+  const length = (size.w - 1) * (size.h - 1);
+  const walk = completeSelfAvoidingWalk(size);
+
+  it('should not have duplicate points', () => {
+    const duplicates = walk.filter(([x1, y1], index) => walk.findIndex(([x2, y2]) => x1 === x2 && y1 === y2) !== index);
+    expect(duplicates.length).to.equal(0);
+  })
+
+  it('should fill entire grid', () => {
+    expect(walk.length).to.equal(length);
+  });
+
+  it('should print grid', () => {
+    const grid = createGrid(size, walk);
+
+    const str = `\t${grid.map((row) => row.join('')).join('\n\t')}`
+    console.log(str);
+
+    expect(true).to.equal(true);
+  });
 });
