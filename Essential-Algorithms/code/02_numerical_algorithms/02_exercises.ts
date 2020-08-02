@@ -398,3 +398,51 @@ describe('8. In the complete self-avoiding random walk algorithm, what is the ke
   backtracking.
 
 */
+
+import gcd from './gcd';
+
+describe(`10. What happens to Euclid's algorithm if A < B initially?`, () => {
+  /*
+    Answer:
+
+    A and B are flipped in the first pass of the algoritim.
+  */
+
+  const n = 4851;
+  const m = 3003;
+
+  it(`gcd(${n}, ${m}) === gcd(${m}, ${n})`, () => {
+    expect(gcd(n, m)).to.equal(gcd(m, n));
+  });
+
+});
+
+describe('11. How can you use the GCD to calculate the LCM?', () => {
+  const lcm = (a: number, b: number) => (a * b) / gcd(a, b);
+
+  it('should return lcm(24, 60) === 120', () => {
+    expect(lcm(24, 60)).to.equal(120);
+  });
+
+});
+
+import exp from './exp';
+
+describe(`How would you need to change the fast exponentiation algorithm to implement modular fast exponentiation?`,
+() => {
+
+  it('should have a working "fast" exp algorithm', () => {
+    expect(exp.fast(7, 3)).to.equal(Math.pow(7, 3));
+  });
+
+  const data = [
+    { x: 5, y: 3, m: 13, c: 8 },
+    { x: 3, y: 5, m: 7, c: 5 }
+  ];
+
+  data.forEach(({ x, y, m, c }) => {
+    it(`should calculate ${x}^${y} mod ${m} = ${c}`, () => {
+      expect(exp.fastModExp(x, y, m)).to.equal(c);
+    });
+  });
+});
