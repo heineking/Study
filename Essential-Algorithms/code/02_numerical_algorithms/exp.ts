@@ -3,6 +3,7 @@ const fast = (x: number, y: number): number => {
   if (y === 0) {
     return 1;
   }
+
   return (y % 2 === 1)
     ? x * fast(x, y - 1)
     : fast(x * x, y / 2);

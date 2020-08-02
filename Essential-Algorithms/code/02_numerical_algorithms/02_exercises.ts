@@ -431,17 +431,27 @@ import exp from './exp';
 describe(`How would you need to change the fast exponentiation algorithm to implement modular fast exponentiation?`,
 () => {
 
-  it('should have a working "fast" exp algorithm', () => {
-    expect(exp.fast(7, 3)).to.equal(Math.pow(7, 3));
+  const expData = [
+    { x: 7, y: 3, c: Math.pow(7, 3) },
+    { x: 5, y: 5, c: Math.pow(5, 5) },
+    { x: 8, y: 7, c: Math.pow(8, 7) },
+  ];
+
+  expData.forEach(({ x, y, c }) => {
+
+    it(`exp.fast(x,y) should calculate ${x}^${y} = ${c}`, () => {
+      expect(exp.fast(x, y)).to.equal(c);
+    });
+
   });
 
-  const data = [
+  const expModData = [
     { x: 5, y: 3, m: 13, c: 8 },
     { x: 3, y: 5, m: 7, c: 5 }
   ];
 
-  data.forEach(({ x, y, m, c }) => {
-    it(`should calculate ${x}^${y} mod ${m} = ${c}`, () => {
+  expModData.forEach(({ x, y, m, c }) => {
+    it(`exp.fastModExp(y, y, m) should calculate ${x}^${y} mod ${m} = ${c}`, () => {
       expect(exp.fastModExp(x, y, m)).to.equal(c);
     });
   });
