@@ -28,8 +28,8 @@ const fastModExp = (x: number, y: number, m: number): number => {
   }
 
   const exp = y % 2 === 1
-    ? x * fast(x, y - 1)
-    : fast(x, y / 2);
+    ? x * fastModExp(x, y - 1, m)
+    : fastModExp(x * x, y / 2, m);
 
   return exp % m;
 };
