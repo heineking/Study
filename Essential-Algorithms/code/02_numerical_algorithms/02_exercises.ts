@@ -462,22 +462,14 @@ import prime from './prime';
 describe('prime', () => {
 
   describe('findFactors', () => {
-    const data: [number, number[]][] = [
-      [1, [1]],
-      [2, [2]],
-      [3, [3]],
-      [4, [2, 2]],
-      [8, [2, 2, 2]],
-      [27, [3, 3, 3]],
-      [123, [3, 41]],
-      [10048, [2, 2, 2, 2, 2, 2, 157]]
-    ];
+    const xs = Array.from<number, number>({ length: 20 }, _ => Math.floor(10000 * Math.random()) + 1);
 
-    data.forEach(([n, expected]) => {
+    xs.forEach((n) => {
 
-      it (`should return prime factors ${JSON.stringify(expected)} for ${n}`, () => {
-        const factors = prime.findFactors(n).sort((a, b) => a < b ? -1 : a > b ? 1 : 0);
-        expect(factors).to.eql(expected);
+      it (`should return prime factors for ${n}`, () => {
+        const factors = prime.findFactors(n);
+        const result = factors.reduce((x, y) => x * y, 1);
+        expect(n).to.eql(result);
       });
 
     });
