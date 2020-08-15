@@ -456,3 +456,31 @@ describe(`How would you need to change the fast exponentiation algorithm to impl
     });
   });
 });
+
+import prime from './prime';
+
+describe('prime', () => {
+
+  describe('findFactors', () => {
+    const data: [number, number[]][] = [
+      [1, [1]],
+      [2, [2]],
+      [3, [3]],
+      [4, [2, 2]],
+      [8, [2, 2, 2]],
+      [27, [3, 3, 3]],
+      [123, [3, 41]],
+      [10048, [2, 2, 2, 2, 2, 2, 157]]
+    ];
+
+    data.forEach(([n, expected]) => {
+
+      it (`should return prime factors ${JSON.stringify(expected)} for ${n}`, () => {
+        const factors = prime.findFactors(n).sort((a, b) => a < b ? -1 : a > b ? 1 : 0);
+        expect(factors).to.eql(expected);
+      });
+
+    });
+  });
+
+});
