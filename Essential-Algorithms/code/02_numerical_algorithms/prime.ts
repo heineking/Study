@@ -1,6 +1,53 @@
 const sqrt = (n: number) => Math.floor(Math.pow(n, 0.5));
 
-const findFactors = (n: number) => {
+/**
+ * Uses the sieve of Eratosthenes to find all
+ * primes up to a certain number
+ *
+ * @param n max number to look for primes
+ */
+const findPrimes = (n: number): number[] => {
+  const isComposite: boolean[] = Array<boolean>(n);
+
+  // cross out multiples of two
+  for (let i = 4; i <= n; i += 2) {
+    isComposite[i] = true;
+  }
+
+  // cross out multiples of prime
+  let nextPrime = 3;
+  const stopAt = sqrt(n);
+
+  while (nextPrime <= stopAt) {
+
+    // cross out multiples of prime
+    for (let i = 2; (i * nextPrime) <= n; i++) {
+      isComposite[(i * nextPrime)] = true;
+    }
+
+    // go to next prime
+    nextPrime += 2;
+    while (nextPrime <= n && isComposite[nextPrime]) {
+      nextPrime += 2;
+    }
+  }
+
+  // pull out the primes
+  const primes: number[] = [];
+  // console.log(isComposite);
+  for (let i = 2; i < n; ++i) {
+    if (!isComposite[i]) {
+      primes.push(i);
+    }
+  }
+
+  return primes;
+};
+
+/**
+ * @param n number that is factored
+ */
+const findFactors = (n: number): number[] => {
   if (n === 1) {
     return [1];
   }
@@ -35,4 +82,5 @@ const findFactors = (n: number) => {
 
 export default {
   findFactors,
+  findPrimes,
 };

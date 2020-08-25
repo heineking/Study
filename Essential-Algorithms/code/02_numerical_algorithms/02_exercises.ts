@@ -462,7 +462,7 @@ import prime from './prime';
 describe('prime', () => {
 
   describe('findFactors', () => {
-    const xs = Array.from<number, number>({ length: 20 }, _ => Math.floor(10000 * Math.random()) + 1);
+    const xs = Array.from<number, number>({ length: 10 }, _ => Math.floor(100000 * Math.random()) + 1);
 
     xs.forEach((n) => {
 
@@ -473,6 +473,15 @@ describe('prime', () => {
       });
 
     });
+  });
+
+  describe('findPrimes', () => {
+
+    it ('should find primes [2, 3, 5, 7] when checking up to 10', () => {
+      const xs = prime.findPrimes(10);
+      expect(xs).to.eql([2, 3, 5, 7]);
+    });
+
   });
 
 });
