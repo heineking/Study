@@ -476,10 +476,12 @@ describe('prime', () => {
   });
 
   describe('findPrimes', () => {
+    const n = 30;
+    const expected = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29];
 
-    it ('should find primes [2, 3, 5, 7] when checking up to 10', () => {
-      const xs = prime.findPrimes(10);
-      expect(xs).to.eql([2, 3, 5, 7]);
+    it (`should find primes ${JSON.stringify(expected)} when checking up to ${n}`, () => {
+      const xs = prime.findPrimes(n);
+      expect(xs).to.eql(expected);
     });
 
   });

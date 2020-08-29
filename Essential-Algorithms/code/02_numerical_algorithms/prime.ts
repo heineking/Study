@@ -45,7 +45,7 @@ const findPrimes = (n: number): number[] => {
   while (nextPrime <= stopAt) {
 
     // cross out multiples of prime
-    for (let i = 2; (i * nextPrime) <= n; i++) {
+    for (let i = 3; (i * nextPrime) <= n; i += 2) {
       isComposite[(i * nextPrime)] = true;
     }
 
