@@ -1,6 +1,30 @@
 const sqrt = (n: number) => Math.floor(Math.pow(n, 0.5));
 
 /**
+ * Implements Fermats theorem for testing prime.
+ * Returns 1/2 ^ k probablity that the number is
+ * prime.
+ * @param p Number to test for primality
+ * @param maxTests Number of times to test for prime
+ */
+const isPrime = (p: number, k: number): boolean => {
+  let j = 0;
+
+  while (j < k) {
+    const n = Math.ceil(Math.random() * (p - 1));
+    const m = Math.pow(n, p - 1) % p;
+
+    if (m !== 1) {
+      return false;
+    }
+
+    j += 1;
+  }
+
+  return true;
+};
+
+/**
  * Uses the sieve of Eratosthenes to find all
  * primes up to a certain number
  *
@@ -83,4 +107,5 @@ const findFactors = (n: number): number[] => {
 export default {
   findFactors,
   findPrimes,
+  isPrime,
 };
