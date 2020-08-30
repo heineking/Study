@@ -1,5 +1,16 @@
 const sqrt = (n: number) => Math.floor(Math.pow(n, 0.5));
 
+const randomBigInt = (len: number): bigint => {
+  const digits = [];
+  while (digits.length < len) {
+    const d = Math.floor(Math.random() * 10);
+    if (digits.length > 1 || d !== 0) {
+      digits.push(d);
+    }
+  }
+  return BigInt(digits.join(''));
+};
+
 /**
  * Implements Fermats theorem for testing prime.
  * Returns 1/2 ^ k probablity that the number is
@@ -7,14 +18,15 @@ const sqrt = (n: number) => Math.floor(Math.pow(n, 0.5));
  * @param p Number to test for primality
  * @param maxTests Number of times to test for prime
  */
-const isPrime = (p: number, k: number): boolean => {
+const isPrime = (p: number | bigint, k: number): boolean => {
+  p = BigInt(p);
+
   let j = 0;
-
   while (j < k) {
-    const n = Math.ceil(Math.random() * (p - 1));
-    const m = Math.pow(n, p - 1) % p;
+    const n = 1n + (randomBigInt(`${p}`.length + 1) % (p - 1n));
+    const m = (n ** (p - 1n)) % p
 
-    if (m !== 1) {
+    if (m !== 1n) {
       return false;
     }
 

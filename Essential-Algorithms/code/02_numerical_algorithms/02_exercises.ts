@@ -488,8 +488,6 @@ describe('prime', () => {
 
   describe('isPrime', () => {
 
-    // because of overflow we cannot apply fermats
-    // theorem to very big prime numbers.
     const xs: [number, boolean][] = [
       [3, true],
       [5, true],
@@ -497,11 +495,13 @@ describe('prime', () => {
       [8, false],
       [9, false],
       [11, true],
-      [13, true]
+      [13, true],
+      [23, true],
+      [14503, true]
     ];
 
     xs.forEach(([n, expected]) => {
-      it(`should return true for ${n}`, () => {
+      it(`should return ${expected} for ${n}`, () => {
         const isPrime = prime.isPrime(n, 10);
         expect(isPrime).to.eql(expected);
       });
