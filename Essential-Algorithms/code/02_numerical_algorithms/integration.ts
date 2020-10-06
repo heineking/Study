@@ -5,7 +5,7 @@ type Fn = (x: number) => number;
  * rectangles.
  * @param fn Function that is being estimated
  * @param xmin left side of area
- * @param xmax right side of are 
+ * @param xmax right side of area
  * @param n number of rectangles to use to estimate area
  */
 export const rectangleRule = (fn: Fn, xmin: number, xmax: number, n: number): number => {
@@ -15,6 +15,22 @@ export const rectangleRule = (fn: Fn, xmin: number, xmax: number, n: number): nu
   // add up areas
   let area = 0;
   let x = xmin;
+
+  for (let i = 0; i < n; ++i) {
+    area += (dx * fn(x));
+    x += dx;
+  }
+
+  return area;
+};
+
+export const rectangleMidpointRule = (fn: Fn, xmin: number, xmax: number, n: number): number => {
+  // rectangle width
+  const dx = (xmax - xmin) / n;
+
+  // add up areas
+  let area = 0;
+  let x = xmin + (dx / 2);
 
   for (let i = 0; i < n; ++i) {
     area += (dx * fn(x));
