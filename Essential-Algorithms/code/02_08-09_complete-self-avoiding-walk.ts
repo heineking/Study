@@ -25,7 +25,7 @@
 
 const basename = __filename.split('/').slice(-1)[0];
 import { expect } from 'chai';
-import grid from './lib/grid';
+import grid from './lib/walk';
 
 describe(basename, () => {
   const grid1 = grid.createGrid(4, 4);

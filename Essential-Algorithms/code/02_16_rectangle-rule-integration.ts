@@ -19,7 +19,7 @@ const basename = __filename.split('/').slice(-1)[0];
 import { expect } from 'chai';
 
 import rectangleRule from './lib/rectangleRule';
-import rectangleMidPointRule from './lib/rectangleMidPointRule';
+import rectangleMidPointRule from './lib/rectangleMidpointRule';
 
 const f = (x: number) => 1 + x + Math.sin(2*x);
 
