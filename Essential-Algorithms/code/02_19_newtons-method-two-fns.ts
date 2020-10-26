@@ -27,6 +27,13 @@
   crosses the x-axis.
 */
 
+/*
+  Calculating the intersection of two functions f(x) and g(x) is
+  as easy as finding the root of:
+
+    h(x) = f(x) - g(x)
+*/
+
 import { expect } from 'chai';
 
 const basename = __filename.split('/').slice(-1)[0];
@@ -113,6 +120,36 @@ describe(basename, () => {
         expect(yIntercept).to.be.lte(expected + me);
         expect(yIntercept).be.gte(expected - me);
       });
+
     })
+  });
+
+  describe('newtonsMethod - intersection of two lines', () => {
+    const me = 0.001;
+
+    const data = [
+      {
+        f: (x: number) => x**3,
+        g: (x: number) => -1 * x**2 + 2,
+        x0: 0.66,
+        expected: 1.0,
+      },
+    ];
+
+    data.forEach(({ f, g, x0, expected }) => {
+
+      const str = Object.entries({
+        f: f.toString(),
+        g: g.toString(),
+        expected,
+        x0
+      }).map((entry) => entry.join(': ')).join('\n\t- ');
+
+      it(`should find intersection of\n\t- ${str}`, () => {
+        const intersection = newtonsMethod((x) => f(x) - g(x), x0, me);
+        expect(intersection).to.be.lessThan(expected + me);
+        expect(intersection).to.be.greaterThan(expected - me);
+      });
+    });
   });
 });
