@@ -5,9 +5,9 @@
 
 /*
   It would not be reasonable to use monte carlo integration for
-  calculating area for graphs with a known function. A similar
-  error percentage as the trapezoid or adaptive quadrature would
-  return many more iterations.
+  calculating area for graphs with a known function. The
+  trapezoid or adaptive quadrature methods require many fewer
+  iterations.
 
   The monte-carlo function took 100,000 iterations to get less
   than 0.5% error.
