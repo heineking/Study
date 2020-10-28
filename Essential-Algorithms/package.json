@@ -4,7 +4,7 @@
   "description": "*Author:* Rod Stephens",
   "main": "''",
   "scripts": {
-    "test": "npx mocha --require ts-node/register 'code/*.ts'"
+    "test": "npx mocha --require ts-node/register 'code/ch_*/*.ts'"
   },
   "author": "",
   "license": "ISC",
