@@ -117,40 +117,4 @@ describe(basename, () => {
     });
 
   });
-
-  // describe('list2', () => {
-
-  //   it('should push items to end of array', () => {
-  //     const top = { next: null };
-  //     const bottom = { next: null };
-  //     const xs = [0, 1, 2, 3, 4];
-
-  //     xs.forEach((x) => list2.push(x, top, bottom));
-  //     expect(toArray(top)).to.eql(xs);
-  //   });
-
-  //   it('should pop items from the end of the array', () => {
-  //     const top = { next: null };
-  //     const bottom = { next: null };
-
-  //     const xs = [0, 1, 2, 3];
-  //     xs.forEach((x) => list2.push(x, top, bottom));
-
-  //     const y = list2.pop(top, bottom);
-
-  //     expect(y).to.equal(3);
-  //     expect(toArray(top)).to.eql(xs.slice(0, -1));
-  //   });
-
-  //   it('should empty list when item is popped from list with one item', () => {
-  //     const top = { next: null };
-  //     const bottom = { next: null };
-
-  //     list2.push(0, top, bottom);
-  //     list2.pop(top, bottom);
-
-  //     expect(toArray(top)).to.eql([]);
-  //   });
-
-  // });
 });
