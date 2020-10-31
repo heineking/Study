@@ -7,17 +7,43 @@ import { createList } from './lib/double-link';
 
 describe(basename, () => {
 
-  it('should add items to start of array', () => {
+  describe('reverse', () => {
 
-    // arrange
-    const list = createList<number>();
-    const xs = [0, 1, 2, 3];
+    const data = [
+      [],
+      [0],
+      [0, 1],
+      [0, 1, 2],
+      [0, 1, 2, 3],
+      [0, 1, 2, 3, 4],
+    ];
 
-    // act
-    xs.forEach((x) => list.unshift(x));
+    data.forEach((xs) => {
 
-    // assert
-    expect(list.toArray()).to.eql(xs.slice().reverse());
+      it(`should handle ${JSON.stringify(xs)}`, () => {
+        const list = createList<number>();
+        xs.forEach(list.unshift);
+        expect(list.reverse().toArray()).to.eql(xs);
+      });
+
+    });
+
   });
 
+  describe('unshift', () => {
+
+    it('should add items to start of array', () => {
+
+      // arrange
+      const list = createList<number>();
+      const xs = [0, 1, 2, 3];
+
+      // act
+      xs.forEach((x) => list.unshift(x));
+
+      // assert
+      expect(list.reverse().toArray()).to.eql(xs);
+    });
+
+  });
 });

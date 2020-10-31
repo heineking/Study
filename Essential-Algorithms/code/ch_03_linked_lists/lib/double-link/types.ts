@@ -1,4 +1,6 @@
 export interface List<T> {
+  push(value: T): void;
+  reverse(): List<T>;
   unshift(value: T): void;
   toArray(): T[];
 }

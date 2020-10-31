@@ -1,10 +1,11 @@
 import { Item, Sentinal } from './types';
 
-const unshift = <T>(value: T, top: Sentinal<T>) => {
+const unshift = <T>(value: T, top: Sentinal<T>, bottom: Sentinal<T>) => {
   const item: Item<T> = { value, prev: null, next: null };
 
-  if (!top.item) {
+  if (!top.item || !bottom.item) {
     top.item = item;
+    bottom.item = item;
     return;
   }
 
