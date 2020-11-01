@@ -14,7 +14,7 @@ const insertBefore = <T>(value: T,  after: Item<T> | Bottom<T>): void => {
 const insert = <T>(value: T, top: Top<T>, lt: LessThan<T>): void => {
   let curr = top.next;
 
-  while(curr && curr.next && lt(curr.value, value)) {
+  while(curr.next && lt(curr.value, value)) {
     curr = curr.next;
   }
 
