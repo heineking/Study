@@ -1,6 +1,6 @@
-import { Item, Top, Bottom } from './types';
+import { Item } from './types';
 
-const remove = <T>(item: Item<T>, top: Top<T>, bottom: Bottom<T>): void => {
+const remove = <T>(item: Item<T>): void => {
   const next = item.next;
   const prev = item.prev;
   next.prev = prev;

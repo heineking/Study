@@ -20,13 +20,13 @@ export const createList = <T>(): List<T> => {
   const list: List<T> = {
     at: (index: number) => at(index, top),
     insert: (value: T, after?: Item<T>) => insert(value, after || top),
-    push: (value: T) => push(value, top, bottom),
-    remove: (item: Item<T>) => remove(item, top, bottom),
+    push: (value: T) => push(value, bottom),
+    remove: (item: Item<T>) => remove(item),
     reverse: () => {
       reverse(top, bottom);
       return list;
     },
-    unshift: (value: T) => unshift(value, top, bottom),
+    unshift: (value: T) => unshift(value, top),
     toArray: () => toArray(top),
   };
 
