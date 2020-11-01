@@ -1,17 +1,8 @@
-import { Top, Bottom } from './types';
-
-/*
-
-    +-----+       +-----+       +-----+
-    |     | --->  |     | --->  |     |
-    |     | <---  |     | <---  |     |
-    +-----+       +-----+       +-----+
-
-*/
+import { Top, Bottom, Item } from './types';
 
 const reverse = <T>(top: Top<T>, bottom: Bottom<T>): void => {
   // handle empty list
-  if (!top.next || !bottom.prev) {
+  if (top.next === bottom && bottom.prev === top) {
     return;
   }
 
@@ -20,32 +11,29 @@ const reverse = <T>(top: Top<T>, bottom: Bottom<T>): void => {
     return;
   }
 
-  // otherwise reverse the contents
-  let y = bottom.prev;
-  let x = bottom.prev.prev;
+  // flip the nodes
+  let z = bottom.prev;
+  let y = bottom.prev.prev;
 
-  while (x) {
-    // save our next node before we flip the nodes
-    const next = x.prev;
+  while (y && y.prev) {
+    const x = y.prev;
 
-    // flip the nodes
-    x.prev = y;
-    y.next = x;
+    y.prev = z;
+    z.next = y;
 
-    // update the items
+    z = y;
     y = x;
-    x = next;
   }
 
-  // lastly, update start and end
-  const start = bottom.prev;
-  const end = top.next;
-  start.prev = null;
-  end.next = null;
-
   // flip the sentinals
-  bottom.prev = end;
+  const end = top.next as Item<T>;
+  const start = bottom.prev as Item<T>;
+
+  start.prev = top;
   top.next = start;
+
+  end.next = bottom;
+  bottom.prev = end;
 };
 
 export default reverse;

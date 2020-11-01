@@ -1,7 +1,7 @@
 import { Item, Top } from './types';
 
 const at = <T>(index: number, top: Top<T>): Item<T> => {
-  if (index < 0 || !top.next) {
+  if (index < 0 || top.next.next === null) {
     throw new RangeError();
   }
 
@@ -9,7 +9,7 @@ const at = <T>(index: number, top: Top<T>): Item<T> => {
 
   while (index > 0) {
 
-    if (!target.next) {
+    if (target.next.next === null) {
       throw new RangeError();
     }
 

@@ -1,31 +1,15 @@
-import { Item, Bottom, Top } from './types';
+import { Bottom, Item, Top } from './types';
 
-const insert = <T>(value: T, top: Top<T>, bottom: Bottom<T>, after?: Item<T>): void => {
-  const item: Item<T> = { value, next: null, prev: null };
+const insert = <T>(value: T, after: Item<T> | Top<T>, bottom: Bottom<T>): void => {
 
-  // handle empty list
-  if (!top.next || !bottom.prev) {
-    top.next = bottom.prev = item;
-    return;
-  }
+  const item: Item<T> = {
+    value,
+    next: after.next,
+    prev: after,
+  };
 
-  if (after) {
-    item.next = after.next;
-    after.next = item;
-  } else {
-    item.next = top.next;
-    top.next = item;
-  }
-
-  // handle case where we inserted at the
-  // end of the list
-  if (item.next) {
-    item.next.prev = item;
-  } else {
-    bottom.prev = item;
-  }
-
-  item.prev = after || null;
+  after.next = item;
+  item.next.prev = item;
 };
 
 export default insert;

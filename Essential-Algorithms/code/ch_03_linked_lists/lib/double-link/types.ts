@@ -10,14 +10,16 @@ export interface List<T> {
 
 export interface Item<T> {
   value: T;
-  next: Item<T> | null;
-  prev: Item<T> | null;
+  next: Item<T> | Bottom<T>;
+  prev: Item<T> | Top<T>;
 }
 
 export interface Top<T> {
-  next: Item<T> | null;
+  next: Item<T> | Bottom<T>;
+  prev: null;
 }
 
 export interface Bottom<T> {
-  prev: Item<T> | null;
+  prev: Item<T> | Top<T>;
+  next: null;
 }

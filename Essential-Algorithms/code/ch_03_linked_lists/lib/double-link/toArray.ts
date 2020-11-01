@@ -4,7 +4,7 @@ const toArray = <T>(top: Top<T>): T[] => {
   const xs: T[] = [];
 
   let curr = top.next;
-  while (curr) {
+  while (curr && curr.next !== null) {
     xs.push(curr.value);
     curr = curr.next;
   }
