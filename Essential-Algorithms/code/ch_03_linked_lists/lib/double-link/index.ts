@@ -1,4 +1,6 @@
-import { List, Top, Bottom } from './types';
+import { Item, List, Top, Bottom } from './types';
+import at from './at';
+import insert from './insert';
 import push from './push';
 import reverse from './reverse';
 import unshift from './unshift';
@@ -9,6 +11,8 @@ export const createList = <T>(): List<T> => {
   const bottom: Bottom<T> = { prev: null };
 
   const list: List<T> = {
+    at: (index: number) => at(index, top),
+    insert: (value: T, after?: Item<T>) => insert(value, top, bottom, after),
     push: (value: T) => push(value, top, bottom),
     reverse: () => {
       reverse(top, bottom);
