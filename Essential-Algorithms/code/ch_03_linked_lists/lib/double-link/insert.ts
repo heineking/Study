@@ -1,6 +1,6 @@
 import { Bottom, Item, Top } from './types';
 
-const insert = <T>(value: T, after: Item<T> | Top<T>, bottom: Bottom<T>): void => {
+const insert = <T>(value: T, after: Item<T> | Top<T>): void => {
 
   const item: Item<T> = {
     value,
