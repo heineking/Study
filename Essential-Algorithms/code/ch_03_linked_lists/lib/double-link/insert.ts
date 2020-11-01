@@ -1,4 +1,4 @@
-import { Bottom, Item, Top } from './types';
+import { Item, Top } from './types';
 
 const insert = <T>(value: T, after: Item<T> | Top<T>): void => {
 
