@@ -1,9 +1,9 @@
-import { Sentinal } from './types';
+import { Top } from './types';
 
-const toArray = <T>(top: Sentinal<T>): T[] => {
+const toArray = <T>(top: Top<T>): T[] => {
   const xs: T[] = [];
 
-  let curr = top.item;
+  let curr = top.next;
   while (curr) {
     xs.push(curr.value);
     curr = curr.next;

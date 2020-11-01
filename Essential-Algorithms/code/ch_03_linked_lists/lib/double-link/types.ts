@@ -11,6 +11,10 @@ export interface Item<T> {
   prev: Item<T> | null;
 }
 
-export interface Sentinal<T> {
-  item: Item<T> | null;
+export interface Top<T> {
+  next: Item<T> | null;
+}
+
+export interface Bottom<T> {
+  prev: Item<T> | null;
 }

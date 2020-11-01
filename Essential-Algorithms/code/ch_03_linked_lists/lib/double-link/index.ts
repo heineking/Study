@@ -1,12 +1,12 @@
-import { List, Sentinal } from './types';
+import { List, Top, Bottom } from './types';
 import push from './push';
 import reverse from './reverse';
 import unshift from './unshift';
 import toArray from './toArray';
 
 export const createList = <T>(): List<T> => {
-  const top: Sentinal<T> = { item: null };
-  const bottom: Sentinal<T> = { item: null };
+  const top: Top<T> = { next: null };
+  const bottom: Bottom<T> = { prev: null };
 
   const list: List<T> = {
     push: (value: T) => push(value, top, bottom),
