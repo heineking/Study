@@ -2,6 +2,7 @@ export interface List<T> {
   at(index: number): Item<T>;
   insert(value: T, after?: Item<T>): void;
   push(value: T): void;
+  remove(item: Item<T>): void;
   reverse(): List<T>;
   unshift(value: T): void;
   toArray(): T[];
