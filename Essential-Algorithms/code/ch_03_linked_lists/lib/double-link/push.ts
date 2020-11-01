@@ -1,17 +1,8 @@
 import { Item, Top, Bottom } from './types';
+import insert from './insert';
 
 const push = <T>(value: T, top: Top<T>, bottom: Bottom<T>): void => {
-  const item: Item<T> = { value, next: null, prev: null };
-
-  if (!top.next|| !bottom.prev) {
-    top.next = item;
-    bottom.prev = item;
-    return
-  }
-
-  bottom.prev.next = item;
-  item.prev = bottom.prev;
-  bottom.prev = item;
+  insert(value, top, bottom, bottom.prev || undefined);
 };
 
 export default push;

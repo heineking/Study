@@ -21,6 +21,8 @@ const insert = <T>(value: T, top: Top<T>, bottom: Bottom<T>, after?: Item<T>): v
   // end of the list
   if (item.next) {
     item.next.prev = item;
+  } else {
+    bottom.prev = item;
   }
 
   item.prev = after || null;

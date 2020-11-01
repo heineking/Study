@@ -1,17 +1,8 @@
-import { Item, Top, Bottom } from './types';
+import { Top, Bottom } from './types';
+import insert from './insert';
 
 const unshift = <T>(value: T, top: Top<T>, bottom: Bottom<T>) => {
-  const item: Item<T> = { value, prev: null, next: null };
-
-  if (!top.next || !bottom.prev) {
-    top.next = item;
-    bottom.prev= item;
-    return;
-  }
-
-  top.next.prev = item;
-  item.next = top.next;
-  top.next = item;
+  insert(value, top, bottom);
 };
 
 export default unshift;
