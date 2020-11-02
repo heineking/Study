@@ -1,4 +1,4 @@
-import { Item, List, Top, Bottom } from './types';
+import { Item, List, Top, Bottom, Sorter } from './types';
 import at from './at';
 import insert from './insert';
 import push from './push';
@@ -7,7 +7,7 @@ import reverse from './reverse';
 import unshift from './unshift';
 import toArray from './toArray';
 
-const createSentinals = <T>(): [Top<T>, Bottom<T>] => {
+export const createSentinals = <T>(): [Top<T>, Bottom<T>] => {
   const top: Partial<Top<T>> = { prev: null };
   const bottom: Bottom<T> = { prev: top as Top<T>, next: null };
   top.next = bottom;
@@ -26,8 +26,9 @@ export const createList = <T>(): List<T> => {
       reverse(top, bottom);
       return list;
     },
-    unshift: (value: T) => unshift(value, top),
+    sort: (sorter: Sorter<T>) => sorter(top),
     toArray: () => toArray(top),
+    unshift: (value: T) => unshift(value, top),
   };
 
   return list;

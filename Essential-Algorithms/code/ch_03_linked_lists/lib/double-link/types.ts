@@ -4,8 +4,9 @@ export interface List<T> {
   push(value: T): void;
   remove(item: Item<T>): void;
   reverse(): List<T>;
-  unshift(value: T): void;
+  sort(sort: Sorter<T>): void;
   toArray(): T[];
+  unshift(value: T): void;
 }
 
 export interface Item<T> {
@@ -23,3 +24,5 @@ export interface Bottom<T> {
   prev: Item<T> | Top<T>;
   next: null;
 }
+
+export type Sorter<T> = (top: Top<T>) => void;
