@@ -1,9 +1,7 @@
-import { Item, Bottom, Top } from './types';
+import { Item, LessThan, Top } from './types';
 import { createSentinals } from './index';
 import remove from './remove';
 import push from './push';
-
-type LessThan<T> = (a: T, b: T) => boolean;
 
 const selectionSort = <T>(lt: LessThan<T>) => (top: Top<T>): void => {
   const [$top, $bottom] = createSentinals<T>();

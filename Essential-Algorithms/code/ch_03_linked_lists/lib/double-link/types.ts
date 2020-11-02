@@ -9,6 +9,8 @@ export interface List<T> {
   unshift(value: T): void;
 }
 
+export type LessThan<T> = (a: T, b: T) => boolean;
+
 export interface Item<T> {
   value: T;
   next: Item<T> | Bottom<T>;

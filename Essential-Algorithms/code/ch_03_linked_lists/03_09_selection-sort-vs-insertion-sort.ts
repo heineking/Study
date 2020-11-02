@@ -5,6 +5,7 @@ const basename = __filename.split('/').slice(-1)[0];
 import { expect } from 'chai';
 
 import { createList } from './lib/double-link';
+import insertionSort from './lib/double-link/insertionSort';
 import selectionSort from './lib/double-link/selectionSort';
 
 const repeat = <T>(fn: () => T, n: number) => {
@@ -16,62 +17,66 @@ const repeat = <T>(fn: () => T, n: number) => {
 };
 
 describe(basename, () => {
+  const sorters = {
+    selectionSort: selectionSort<number>((a, b) => a < b),
+    insertionSort: insertionSort<number>((a, b) => a < b),
+  };
 
-  describe('selectionSort', () => {
+  Object.entries(sorters).forEach(([name, sorter]) => {
 
-    const sortNumbers = selectionSort<number>((a, b) => a < b);
-    const sortArrayAsc = (xs: number[]) => [...xs].sort((a, b) => a < b ? 1 : a > b ? -1 : 0);
+    describe(name, () => {
+      const sortArrayAsc = (xs: number[]) => [...xs].sort((a, b) => a < b ? 1 : a > b ? -1 : 0);
 
-    it('should sort empty lists', () => {
-      // arrange
-      const list = createList<number>();
+      it('should sort empty lists', () => {
+        // arrange
+        const list = createList<number>();
 
-      // act
-      list.sort(sortNumbers);
+        // act
+        list.sort(sorter);
 
-      // assert
-      expect(list.toArray()).to.eql([]);
+        // assert
+        expect(list.toArray()).to.eql([]);
+      });
+
+      it('should sort list of length 1', () => {
+        // arrange
+        const list = createList<number>();
+        list.insert(0);
+
+        // act
+        list.sort(sorter);
+
+        // assert
+        expect(list.toArray()).to.eql([0]);
+      });
+
+      it('should sort [0, 1] to largest descending', () => {
+        // arrange
+        const list = createList<number>();
+        list.push(0);
+        list.push(1);
+
+        // act
+        list.sort(sorter);
+
+        // assert
+        expect(list.toArray()).to.eql([1, 0]);
+      });
+
+      it('should sort randomly generated list', () => {
+        // arrange
+        const list = createList<number>();
+        const xs = repeat(Math.random, 100);
+        xs.forEach(list.push);
+
+        // act
+        list.sort(sorter);
+
+        // assert
+        const expected = sortArrayAsc(xs);
+        expect(list.toArray()).to.eql(expected);
+      });
+
     });
-
-    it('should sort list of length 1', () => {
-      // arrange
-      const list = createList<number>();
-      list.insert(0);
-
-      // act
-      list.sort(sortNumbers);
-
-      // assert
-      expect(list.toArray()).to.eql([0]);
-    });
-
-    it('should sort [0, 1] to largest descending', () => {
-      // arrange
-      const list = createList<number>();
-      list.push(0);
-      list.push(1);
-
-      // act
-      list.sort(sortNumbers);
-
-      // assert
-      expect(list.toArray()).to.eql([1, 0]);
-    });
-
-    it('should sort randomly generated list', () => {
-      // arrange
-      const list = createList<number>();
-      const xs = repeat(Math.random, 100);
-      xs.forEach(list.push);
-
-      // act
-      list.sort(sortNumbers);
-
-      // assert
-      const expected = sortArrayAsc(xs);
-      expect(list.toArray()).to.eql(expected);
-    });
-
   });
-
 });
