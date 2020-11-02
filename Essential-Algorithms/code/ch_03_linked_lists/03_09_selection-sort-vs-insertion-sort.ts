@@ -5,8 +5,7 @@ const basename = __filename.split('/').slice(-1)[0];
 import { expect } from 'chai';
 
 import { createList } from './lib/double-link';
-import insertionSort from './lib/double-link/insertionSort';
-import pop from './lib/single-link/pop';
+import selectionSort from './lib/double-link/selectionSort';
 
 const repeat = <T>(fn: () => T, n: number) => {
   const xs: T[] = [];
@@ -18,9 +17,9 @@ const repeat = <T>(fn: () => T, n: number) => {
 
 describe(basename, () => {
 
-  describe('insertionSort', () => {
+  describe('selectionSort', () => {
 
-    const sortNumbers = insertionSort<number>((a, b) => a < b);
+    const sortNumbers = selectionSort<number>((a, b) => a < b);
     const sortArrayAsc = (xs: number[]) => [...xs].sort((a, b) => a < b ? 1 : a > b ? -1 : 0);
 
     it('should sort empty lists', () => {

@@ -5,7 +5,7 @@ import push from './push';
 
 type LessThan<T> = (a: T, b: T) => boolean;
 
-const insertionSort = <T>(lt: LessThan<T>) => (top: Top<T>): void => {
+const selectionSort = <T>(lt: LessThan<T>) => (top: Top<T>): void => {
   const [$top, $bottom] = createSentinals<T>();
 
   while (top.next.next) {
@@ -32,4 +32,4 @@ const insertionSort = <T>(lt: LessThan<T>) => (top: Top<T>): void => {
   top.next = $top.next;
 };
 
-export default insertionSort;
+export default selectionSort;
