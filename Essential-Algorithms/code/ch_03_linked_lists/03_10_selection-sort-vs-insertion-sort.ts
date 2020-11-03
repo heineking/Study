@@ -21,29 +21,8 @@ import { createList } from './lib/double-link';
 import insertionSort from './lib/double-link/insertionSort';
 import selectionSort from './lib/double-link/selectionSort';
 
-const repeat = <T>(fn: () => T, n: number) => {
-  const xs: T[] = [];
-  for (let i = 0; i < n; ++i) {
-    xs.push(fn());
-  }
-  return xs;
-};
-
-const timed = (fn: (...args: any[]) => any): (...args: any[]) => { result: any, executionTime: number } => {
-  return (...args: any[]): any => {
-    const start = process.hrtime();
-    const result = fn(...args);
-    const hrtime = process.hrtime(start);
-
-    const nanoseconds = (hrtime[0] * 1e9) + hrtime[1];
-    const milliseconds = nanoseconds / 1e6;
-
-    return {
-      result,
-      executionTime: milliseconds,
-    };
-  };
-};
+import repeat from './lib/repeat';
+import timed from './lib/timed';
 
 describe(basename, () => {
 
