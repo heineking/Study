@@ -7,6 +7,9 @@
 /*
   The insertion sort does not modify the input list. The selection
   sort could be modified to mark the visited items.
+
+  NOTE: current implementation IS NOT more efficient. The algorithm
+  I came up with is about 10x slower than original
 */
 const basename = __filename.split('/').slice(-1)[0];
 import { expect } from 'chai';
