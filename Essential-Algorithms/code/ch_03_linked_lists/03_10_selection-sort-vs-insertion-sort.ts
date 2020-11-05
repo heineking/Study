@@ -88,22 +88,22 @@ describe(basename, () => {
     });
   });
 
-  it('should compare algorithms', () => {
-    // arrange
-    const list1 = createList<number>();
-    const list2 = createList<number>();
+  // it('should compare algorithms', () => {
+  //   // arrange
+  //   const list1 = createList<number>();
+  //   const list2 = createList<number>();
 
-    const xs = repeat(Math.random, 10000);
-    xs.forEach(list1.push);
-    xs.forEach(list2.push);
+  //   const xs = repeat(Math.random, 5000);
+  //   xs.forEach(list1.push);
+  //   xs.forEach(list2.push);
 
-    // act
-    const selectionSortResult = timed(list1.sort)(selectionSort<number>((a, b) => a < b));
-    const insertionSortResult = timed(list2.sort)(insertionSort<number>((a, b) => a < b));
+  //   // act
+  //   const selectionSortResult = timed(list1.sort)(selectionSort<number>((a, b) => a < b));
+  //   const insertionSortResult = timed(list2.sort)(insertionSort<number>((a, b) => a < b));
 
-    // assert
-    console.log(`\t-insertion: ${insertionSortResult.executionTime}`);
-    console.log(`\t-selection: ${selectionSortResult.executionTime}`);
-    expect(true).to.eql(true);
-  });
+  //   // assert
+  //   console.log(`\t-insertion: ${insertionSortResult.executionTime}`);
+  //   console.log(`\t-selection: ${selectionSortResult.executionTime}`);
+  //   expect(true).to.eql(true);
+  // });
 });

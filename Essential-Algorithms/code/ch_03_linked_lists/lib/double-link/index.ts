@@ -1,5 +1,6 @@
 import { Item, List, Top, Bottom, Sorter } from './types';
 import at from './at';
+import copy from './copy';
 import insert from './insert';
 import push from './push';
 import remove from './remove';
@@ -19,6 +20,7 @@ export const createList = <T>(): List<T> => {
 
   const list: List<T> = {
     at: (index: number) => at(index, top),
+    copy: () => copy(top),
     insert: (value: T, after?: Item<T>) => insert(value, after || top),
     push: (value: T) => push(value, bottom),
     remove: (item: Item<T>) => remove(item),

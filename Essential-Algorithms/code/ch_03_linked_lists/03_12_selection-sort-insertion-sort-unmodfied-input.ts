@@ -5,17 +5,21 @@
 */
 
 /*
-  The insertion sort does not modify the input list. The selection
-  sort could be modified to mark the visited items.
+  The insertion sort does not modify the input list.
 
-  NOTE: current implementation IS NOT more efficient. The algorithm
-  I came up with is about 10x slower than original
+  The source list could be copied to prevent it from being
+  changed by selection sort. This does not, however, improve
+  performance...but the copy method is relatively inexpensive
+  compared to the selection sort algorithm so the added time
+  is small.
 */
+
 const basename = __filename.split('/').slice(-1)[0];
 import { expect } from 'chai';
 
 import { createList } from './lib/double-link';
-import selectionSort2 from './lib/double-link/selectionSort2';
+
+import selectionSort from './lib/double-link/selectionSort';
 import insertionSort from './lib/double-link/insertionSort';
 
 import repeat from './lib/repeat';
@@ -23,78 +27,72 @@ import timed from './lib/timed';
 
 
 describe(basename, () => {
-  const sorter = selectionSort2<number>((a, b) => a < b);
-  const sortArrayAsc = (xs: number[]) => [...xs].sort((a, b) => a < b ? 1 : a > b ? -1 : 0);
 
-  it('should sort empty lists', () => {
-    // arrange
-    const list = createList<number>();
+  describe('#copy()', () => {
 
-    // act
-    list.sort(sorter);
+    it('should copy empty list', () => {
+      const list1 = createList();
+      const list2 = list1.copy();
+      expect(list1.toArray()).to.eql(list2.toArray());
+    });
 
-    // assert
-    expect(list.toArray()).to.eql([]);
+    it('should copy list of length 1', () => {
+      // arrange
+      const list1 = createList<number>();
+      list1.push(0);
+
+      // act
+      const list2 = list1.copy();
+
+      // assert
+      expect(list2.toArray()).to.eql(list2.toArray());
+    });
+
+    it('should copy list of random length', () => {
+      // arrange
+      const list1 = createList<number>();
+      list1.push(0);
+      list1.push(1);
+      list1.push(2);
+
+      // act
+      const list2 = list1.copy();
+      list2.push(3);
+
+      // assert
+      expect(list1.toArray()).to.eql([0, 1, 2]);
+      expect(list2.toArray()).to.eql([0, 1, 2, 3]);
+    });
   });
 
-  it('should sort list of length 1', () => {
-    // arrange
-    const list = createList<number>();
+  describe('selectionSort w/ copy', () => {
 
-    // act
-    list.push(0)
-    list.sort(sorter);
+    it('should compare algorithms', function() {
+      this.timeout(5000);
 
-    // assert
-    expect(list.toArray()).to.eql([0]);
+      // arrange
+      const list = createList<number>();
+      const list1 = createList<number>();
+
+      const xs = repeat(Math.random, 5000);
+
+      xs.forEach(list.push);
+      xs.forEach(list1.push);
+
+      // act
+      const list2 = list1.copy();
+      const arr1 = list.toArray();
+
+      const insertionSortResult = timed(list1.sort)(insertionSort<number>((a, b) => a < b));
+      const selectionSortResult = timed(list2.sort)(selectionSort<number>((a, b) => a < b));
+
+      const arr2 = list.toArray();
+
+      // assert
+      console.log(`\t-insertion: ${insertionSortResult.executionTime}`);
+      console.log(`\t-selection: ${selectionSortResult.executionTime}`);
+
+      expect(arr1).to.eql(arr2)
+    });
   });
-
-  it('should sort [0, 1] to largest descending', () => {
-    // arrange
-    const list = createList<number>();
-    list.push(0);
-    list.push(1);
-
-    // act
-    list.sort(sorter);
-
-    // assert
-    expect(list.toArray()).to.eql([1, 0]);
-  });
-
-  it('should sort randomly generated list', () => {
-    // arrange
-    const list = createList<number>();
-    const xs = repeat(Math.random, 100);
-    xs.forEach(list.push);
-
-    // act
-    list.sort(sorter);
-
-    // assert
-    const expected = sortArrayAsc(xs);
-    expect(list.toArray()).to.eql(expected);
-  });
-
-  it('should compare algorithms', function() {
-    this.timeout(5000);
-
-    // arrange
-    const list1 = createList<number>();
-    const list2 = createList<number>();
-
-    const xs = repeat(Math.random, 10000);
-    xs.forEach(list1.push);
-    xs.forEach(list2.push);
-
-    // act
-    const selectionSortResult = timed(list1.sort)(selectionSort2<number>((a, b) => a < b));
-    const insertionSortResult = timed(list2.sort)(insertionSort<number>((a, b) => a < b));
-
-    // assert
-    console.log(`\t-insertion: ${insertionSortResult.executionTime}`);
-    console.log(`\t-selection: ${selectionSortResult.executionTime}`);
-    expect(true).to.eql(true);
-  });
-
 });
