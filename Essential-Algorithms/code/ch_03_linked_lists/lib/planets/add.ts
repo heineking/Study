@@ -2,11 +2,11 @@ import { Planet, ThreadName, Threads } from './types';
 
 const addNext = (threadName: ThreadName, metric: keyof Planet, top: Threads, planet: Planet) => {
   let threads = top;
-  let after = threads[threadName];
+  let next = threads[threadName];
 
-  while (after && after[metric] < planet[metric]) {
-    threads = after.threads;
-    after = threads[threadName];
+  while (next && next[metric] < planet[metric]) {
+    threads = next.threads;
+    next = threads[threadName];
   }
 
   planet.threads[threadName] = threads[threadName];
