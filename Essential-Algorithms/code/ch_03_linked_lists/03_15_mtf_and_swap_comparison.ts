@@ -12,7 +12,72 @@ import { createSwapList } from './lib/swap-list';
 import { createMtfList } from './lib/mtf';
 
 import { Item } from './lib/swap-list/types';
+
+import randomizeArray from '../ch_02_numerical_algorithms/lib/randomizeArray';
 import swap from './lib/swap-list/swap';
+
+const createWeightedMinMaxSelector = (weights: { [key: number]: number }) => {
+  const xs: number[] = [];
+  for (const [max, weight] of Object.entries(weights)) {
+    for (let i = 0; i < weight; ++i) {
+      xs.push(+max);
+    }
+  }
+
+  return () => {
+    const index = Math.floor(Math.random() * xs.length);
+    const max = xs[index];
+    return [max - 10, max];
+  };
+};
+
+const compare = (n: number) => {
+  const xs = Array(100).fill(0).map((_, i) => i + 1);
+  const mtfList = createMtfList<number>();
+  const swapList = createSwapList<number>();
+
+  mtfList.add(xs);
+  swapList.add(xs);
+
+  let searches = 0;
+  const costs: { swap: number, mtf: number } = { swap: 0, mtf: 0 };
+
+  const minMaxSelector = createWeightedMinMaxSelector({
+    10: 50,
+    20: 5,
+    30: 20,
+    40: 10,
+    50: 30,
+    60: 30,
+    70: 10,
+    80: 40,
+    90: 5,
+    100: 10
+  });
+
+  const search = () => {
+    const [min, max] = minMaxSelector();
+
+    const x = Math.floor(Math.random() * (max - min)) + min;
+    const mtfCost = mtfList.toArray().indexOf(x) + 1;
+    const swapCost = swapList.toArray().indexOf(x) + 1;
+
+    costs.mtf = +(((costs.mtf * searches) + mtfCost) / (searches + 1)).toFixed(3);
+    costs.swap = +(((costs.swap * searches) + swapCost) / (searches + 1)).toFixed(3);
+
+    mtfList.find((y) => y === x);
+    swapList.find((y) => y === x);
+
+    searches += 1;
+  };
+
+  for (let i = 0; i < n; ++i) {
+    search();
+  }
+
+  return { searches, costs };
+};
+
 
 describe(basename, () => {
 
@@ -155,5 +220,14 @@ describe(basename, () => {
         expect(list.toArray()).to.eql(ys);
       });
     });
+  });
+
+  describe('compare', () => {
+
+    it('swap should eventually get better performance for higher number of searches', () => {
+      const data = [100, 500, 1000, 10000, 50000].forEach((n) => {
+        console.log(`\t - ${JSON.stringify(compare(n))}`);
+      });
+    })
   });
 });
